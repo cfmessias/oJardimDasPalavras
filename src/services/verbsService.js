@@ -1,8 +1,7 @@
 // src/services/verbsService.js
 
-const VerbsService = {
-  // 1. Obter verbos parametrizados trazendo também o tempo verbal (tense) e conjugações
-// 1. Obter verbos parametrizados e filtrar as conjugações pelo tempo verbal correto
+window.VerbsService = {
+  // 1. Obter verbos parametrizados e filtrar as conjugações pelo tempo verbal correto
   async getVerbsByLevel(grade, plnnLevel) {
     let query = supabase
       .from('verb_levels')
@@ -28,7 +27,7 @@ const VerbsService = {
       return [];
     }
 
-    return data.map(item => {
+    return (data || []).map(item => {
       const targetTense = item.tense || 'Presente do Indicativo';
 
       // Normalização para comparar tempos verbais sem falhas por espaços ou acentos
@@ -42,9 +41,9 @@ const VerbsService = {
       return {
         association_id: item.id,
         tense: targetTense,
-        id: item.verbs.id,
-        infinitive: item.verbs.infinitive,
-        is_regular: item.verbs.is_regular,
+        id: item.verbs?.id,
+        infinitive: item.verbs?.infinitive,
+        is_regular: item.verbs?.is_regular,
         verb_conjugations: filteredConjugations
       };
     });
@@ -69,32 +68,31 @@ const VerbsService = {
       console.error('Erro ao pesquisar catálogo:', error);
       return [];
     }
-    return data;
+    return data || [];
   },
 
   // 3. Associar verbo ao Ano / Nível PLNM COM O TEMPO VERBAL
   async assignVerbToLevel(verbId, grade, plnnLevel, tense) {
-  // Garante que o nível tem um valor válido (se estiver vazio, assume 'A1' ou o valor selecionado)
-	const levelToSave = plnnLevel && plnnLevel.trim() !== '' ? plnnLevel : 'A1';
-	
-	const { data, error } = await supabase
-		.from('verb_levels')
-		.insert([
-		{
-			verb_id: verbId,
-			grade: parseInt(grade),
-			plnn_level: levelToSave,
-			tense: tense || 'Presente do Indicativo'
-		}
-		])
-		.select();
-	
-	if (error) {
-		console.error('Erro ao associar verbo:', error);
-		throw error;
-	}
-	return data;
-	},
+    const levelToSave = plnnLevel && plnnLevel.trim() !== '' ? plnnLevel : 'A1';
+    
+    const { data, error } = await supabase
+      .from('verb_levels')
+      .insert([
+        {
+          verb_id: verbId,
+          grade: parseInt(grade),
+          plnn_level: levelToSave,
+          tense: tense || 'Presente do Indicativo'
+        }
+      ])
+      .select();
+    
+    if (error) {
+      console.error('Erro ao associar verbo:', error);
+      throw error;
+    }
+    return data;
+  },
 
   // 4. Criar ou atualizar um verbo e as suas 6 conjugações no catálogo global
   async saveCatalogVerb(verbData) {
