@@ -150,7 +150,7 @@ function VerbsTab() {
         </div>
 
         <div>
-          <label><strong>Tempo Verbal Pretendido:</strong></label><br />
+          <label><strong>Tempo Verbal:</strong></label><br />
           <select value={selectedTense} onChange={(e) => setSelectedTense(e.target.value)} style={{ width: '100%', padding: '8px' }}>
             <option value="Presente do Indicativo">Presente do Indicativo</option>
             <option value="Pretérito Perfeito">Pretérito Perfeito</option>

@@ -614,9 +614,18 @@ const handleSelectStudent = async (student) => {
               type="button"
               className={`btn ${dashboardTab === "verbos" ? "btn-primary" : "btn-outline"}`}
               onClick={openVerbsTab}
-            >
+            >			
               🗣️ Verbos
             </button>
+			{/* NOVO BOTÃO DO CATÁLOGO DE VERBOS */}
+			<button
+				type="button"
+				className={`btn ${dashboardTab === "catalogo_verbos" ? "btn-primary" : "btn-outline"}`}
+				onClick={() => setDashboardTab("catalogo_verbos")}
+			>
+				📖 Catálogo
+			</button>
+			
             <button
               type="button"
               className={`btn ${dashboardTab === "gramatica" ? "btn-primary" : "btn-outline"}`}
@@ -955,11 +964,16 @@ const handleSelectStudent = async (student) => {
             </React.Fragment>
           )}
   
-        {/* 4. SEPARADOR: VERBOS */}
-		{dashboardTab === "verbos" && (
+		  {/* 4. SEPARADOR: VERBOS */}
+		  {dashboardTab === "verbos" && (
 		  <VerbsTab />
-		)}
-  
+		  )}
+		  
+		  {/* 4.1. SEPARADOR: CATÁLOGO & CONJUGAÇÕES */}
+		  {dashboardTab === "catalogo_verbos" && (
+		  	<VerbCatalogTab />
+		  )}
+		
           {/* 5. SEPARADOR: GRAMÁTICA */}
           {dashboardTab === "gramatica" && (
            <React.Fragment>
