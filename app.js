@@ -635,111 +635,60 @@ const handleSelectStudent = async (student) => {
             </button>
           </div>
   
-          {/* BARRA DE FILTROS GLOBAIS (Partilhada por todas as abas) */}
-          <div style={{ backgroundColor: '#f9fafb', padding: '16px', borderRadius: '12px', border: '1px solid #e5e7eb', marginBottom: '24px' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              
-              {/* Filtro por Ano Escolar */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-                <span style={{ fontWeight: 'bold', fontSize: '0.9rem', color: '#374151', minWidth: '100px' }}>Ano Escolar:</span>
-                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                  {[1, 2, 3, 4, 5, 6].map((grade) => (
-                    <button
-                      key={grade}
-                      type="button"
-                      className={`btn ${Number(selectedGrade) === grade ? 'btn-primary' : 'btn-outline'}`}
-                      style={{ padding: '6px 14px', fontSize: '0.85rem', borderRadius: '20px' }}
-                      onClick={() => {
-                        setSelectedGrade(grade);
-                        setNewStudentGrade && setNewStudentGrade(grade);
-                        setWordGrade && setWordGrade(grade);
-                      }}
-                    >
-                      {grade}.º Ano
-                    </button>
-                  ))}
+          {/* BARRA DE FILTROS GLOBAIS (Oculta no Catálogo de Verbos) */}
+          {dashboardTab !== "catalogo_verbos" && (
+            <div style={{ backgroundColor: '#f9fafb', padding: '16px', borderRadius: '12px', border: '1px solid #e5e7eb', marginBottom: '24px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                
+                {/* Filtro por Ano Escolar */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                  <span style={{ fontWeight: 'bold', fontSize: '0.9rem', color: '#374151', minWidth: '100px' }}>Ano Escolar:</span>
+                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                    {[1, 2, 3, 4, 5, 6].map((grade) => (
+                      <button
+                        key={grade}
+                        type="button"
+                        className={`btn ${Number(selectedGrade) === grade ? 'btn-primary' : 'btn-outline'}`}
+                        style={{ padding: '6px 14px', fontSize: '0.85rem', borderRadius: '20px' }}
+                        onClick={() => {
+                          setSelectedGrade(grade);
+                          setNewStudentGrade && setNewStudentGrade(grade);
+                          setWordGrade && setWordGrade(grade);
+                        }}
+                      >
+                        {grade}.º Ano
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-			  
-			{/* BARRA DE FILTROS GLOBAIS (Oculta no Catálogo) */}
-			{dashboardTab !== "catalogo_verbos" && (
-			<div style={{ backgroundColor: '#f9fafb', padding: '16px', borderRadius: '12px', border: '1px solid #e5e7eb', marginBottom: '24px' }}>
-			<div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-				
-				{/* Filtro por Ano Escolar */}
-				<div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-				<span style={{ fontWeight: 'bold', fontSize: '0.9rem', color: '#374151', minWidth: '100px' }}>Ano Escolar:</span>
-				<div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-					{[1, 2, 3, 4, 5, 6].map((grade) => (
-					<button
-						key={grade}
-						type="button"
-						className={`btn ${Number(selectedGrade) === grade ? 'btn-primary' : 'btn-outline'}`}
-						style={{ padding: '6px 14px', fontSize: '0.85rem', borderRadius: '20px' }}
-						onClick={() => {
-						setSelectedGrade(grade);
-						setNewStudentGrade && setNewStudentGrade(grade);
-						setWordGrade && setWordGrade(grade);
-						}}
-					>
-						{grade}.º Ano
-					</button>
-					))}
-				</div>
-				</div>
-			
-              {/* Filtro por Nível PLNN */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-                <span style={{ fontWeight: 'bold', fontSize: '0.9rem', color: '#374151', minWidth: '100px' }}>Nível PLNN:</span>
-                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                  {["A1", "A2", "B1", "B2"].map((level) => (
-                    <button
-                      key={level}
-                      type="button"
-                      className={`btn ${selectedPlnnLevel === level ? 'btn-primary' : 'btn-outline'}`}
-                      style={{ padding: '6px 14px', fontSize: '0.85rem', borderRadius: '20px' }}
-                      onClick={() => {
-                        setSelectedPlnnLevel(level);
-                        setNewStudentPlnnLevel && setNewStudentPlnnLevel(level);
-                        setWordPlnnLevel && setWordPlnnLevel(level);
-                      }}
-                    >
-                      Nível {level}
-                    </button>
-                  ))}
-                </div>
-              </div>
   
+                {/* Filtro por Nível PLNN */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                  <span style={{ fontWeight: 'bold', fontSize: '0.9rem', color: '#374151', minWidth: '100px' }}>Nível PLNN:</span>
+                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                    {["A1", "A2", "B1", "B2"].map((level) => (
+                      <button
+                        key={level}
+                        type="button"
+                        className={`btn ${selectedPlnnLevel === level ? 'btn-primary' : 'btn-outline'}`}
+                        style={{ padding: '6px 14px', fontSize: '0.85rem', borderRadius: '20px' }}
+                        onClick={() => {
+                          setSelectedPlnnLevel(level);
+                          setNewStudentPlnnLevel && setNewStudentPlnnLevel(level);
+                          setWordPlnnLevel && setWordPlnnLevel(level);
+                        }}
+                      >
+                        Nível {level}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+  
+              </div>
             </div>
-          </div>
-			
+          )}
 		  
-		  
-		  	{/* Filtro por Nível PLNN */}
-		  	<div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-		  		<span style={{ fontWeight: 'bold', fontSize: '0.9rem', color: '#374151', minWidth: '100px' }}>Nível PLNN:</span>
-		  		<div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-		  		{["A1", "A2", "B1", "B2"].map((level) => (
-		  			<button
-		  			key={level}
-		  			type="button"
-		  			className={`btn ${selectedPlnnLevel === level ? 'btn-primary' : 'btn-outline'}`}
-		  			style={{ padding: '6px 14px', fontSize: '0.85rem', borderRadius: '20px' }}
-		  			onClick={() => {
-		  				setSelectedPlnnLevel(level);
-		  				setNewStudentPlnnLevel && setNewStudentPlnnLevel(level);
-		  				setWordPlnnLevel && setWordPlnnLevel(level);
-		  			}}
-		  			>
-		  			Nível {level}
-		  			</button>
-		  		))}
-		  		</div>
-		  	</div>
-		  
-		  	</div>
-		  </div>
-		  )}
+          {/* 1. SEPARADOR: ALUNOS */}
 		  
           {/* 1. SEPARADOR: ALUNOS */}
           {dashboardTab === "alunos" && (
