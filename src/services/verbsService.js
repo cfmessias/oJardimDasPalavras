@@ -29,12 +29,14 @@ const VerbsService = {
     }
 
     return data.map(item => {
-      // Determina o tempo verbal definido para esta associação (padrão: Presente do Indicativo)
       const targetTense = item.tense || 'Presente do Indicativo';
 
-      // Filtra as conjugações do verbo para manter APENAS as do tempo verbal correto
+      // Normalização para comparar tempos verbais sem falhas por espaços ou acentos
+      const normalizeStr = (str) => 
+        (str || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+
       const filteredConjugations = (item.verbs?.verb_conjugations || []).filter(
-        conj => conj.tense === targetTense
+        conj => normalizeStr(conj.tense) === normalizeStr(targetTense)
       );
 
       return {

@@ -232,22 +232,40 @@ function VerbsTab() {
                   </tr>
 
                   {/* Detalhe expandido com as 6 pessoas gramaticais */}
-                  {isExpanded && (
-                    <tr>
-                      <td colSpan="4" style={{ background: '#f9f9f9', padding: '12px' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', fontSize: '0.9rem' }}>
-                          {['eu', 'tu', 'ele', 'nos', 'vos', 'eles'].map(person => {
-                            const c = conjugations.find(item => item.person === person);
-                            return (
-                              <div key={person} style={{ background: '#fff', padding: '6px', border: '1px solid #e0e0e0', borderRadius: '4px' }}>
-                                <strong style={{ textTransform: 'capitalize' }}>{person}:</strong> {c ? c.conjugated_form : '-'}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </td>
-                    </tr>
-                  )}
+                  {/* Detalhe expandido com as 6 pessoas gramaticais */}
+				  {isExpanded && (
+				    <tr>
+				  	<td colSpan="4" style={{ background: '#f9f9f9', padding: '12px' }}>
+				  	  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', fontSize: '0.9rem' }}>
+				  		{[
+				  		  { key: 'eu', label: 'Eu', targets: ['eu'] },
+				  		  { key: 'tu', label: 'Tu', targets: ['tu'] },
+				  		  { key: 'ele', label: 'Ele/Ela', targets: ['ele', 'ela', 'ele/ela'] },
+				  		  { key: 'nos', label: 'Nós', targets: ['nos', 'nós'] },
+				  		  { key: 'vos', label: 'Vós', targets: ['vos', 'vós'] },
+				  		  { key: 'eles', label: 'Eles/Elas', targets: ['eles', 'elas', 'eles/elas'] }
+				  		].map(personObj => {
+				  		  // Procura na lista de conjugações ignorando acentos e maiúsculas
+				  		  const match = conjugations.find(item => {
+				  			if (!item || !item.person) return false;
+				  			const normalizedDbPerson = item.person
+				  			  .toString()
+				  			  .toLowerCase()
+				  			  .normalize("NFD")
+				  			  .replace(/[\u0300-\u036f]/g, "");
+				  			return personObj.targets.includes(normalizedDbPerson);
+				  		  });
+				  
+				  		  return (
+				  			<div key={personObj.key} style={{ background: '#fff', padding: '6px', border: '1px solid #e0e0e0', borderRadius: '4px' }}>
+				  			  <strong>{personObj.label}:</strong> {match ? match.conjugated_form : '-'}
+				  			</div>
+				  		  );
+				  		})}
+				  	  </div>
+				  	</td>
+				    </tr>
+				  )}
                 </React.Fragment>
               );
             })}
