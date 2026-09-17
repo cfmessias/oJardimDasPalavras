@@ -73,20 +73,22 @@ window.VerbsService = {
 
   // 3. Associar verbo ao Ano / Nível PLNM COM O TEMPO VERBAL
   async assignVerbToLevel(verbId, grade, plnnLevel, tense) {
-    const levelToSave = plnnLevel && plnnLevel.trim() !== '' ? plnnLevel : 'A1';
-    
+    if (!plnnLevel || plnnLevel.trim() === '') {
+      throw new Error('O Nível PLNM é de preenchimento obrigatório.');
+    }
+
     const { data, error } = await supabase
       .from('verb_levels')
       .insert([
         {
           verb_id: verbId,
           grade: parseInt(grade),
-          plnn_level: levelToSave,
+          plnn_level: plnnLevel,
           tense: tense || 'Presente do Indicativo'
         }
       ])
       .select();
-    
+
     if (error) {
       console.error('Erro ao associar verbo:', error);
       throw error;
