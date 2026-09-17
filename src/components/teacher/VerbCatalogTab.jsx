@@ -13,7 +13,7 @@ function VerbCatalogTab() {
     'Futuro do Indicativo'
   ];
 
-  const persons = ['eu', 'tu', 'ele/ela', 'nós', 'vós', 'eles/elas'];
+  const persons = ['eu', 'tu', 'ele', 'nós', 'vós', 'eles'];
 
   // Pesquisa de verbos no catálogo
   const handleSearch = async (e) => {
@@ -38,8 +38,8 @@ function VerbCatalogTab() {
   // Carregar formas conjugadas para o tempo selecionado
   const loadTenseForms = (verb, tense) => {
     const initialForms = {
-      'eu': '', 'tu': '', 'ele/ela': '',
-      'nós': '', 'vós': '', 'eles/elas': ''
+      'eu': '', 'tu': '', 'ele': '',
+      'nós': '', 'vós': '', 'eles': ''
     };
 
     if (verb && verb.verb_conjugations) {
