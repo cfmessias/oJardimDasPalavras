@@ -61,15 +61,24 @@ function VerbsTab() {
   };
 
   const handleAssignVerb = async (verb) => {
-    try {
-      await VerbsService.assignVerbToLevel(verb.id, selectedGrade, selectedPlnnLevel, selectedTense);
-      setSearchTerm('');
-      setSearchResults([]);
-      loadAssignedVerbs();
-    } catch (err) {
-      alert('Erro ao associar o verbo.');
-    }
-  };
+	try {
+		// Se o utilizador tiver "-- Todos --" selecionado, podes forçar 'A1' ou avisar
+		const levelToAssign = selectedPlnnLevel || 'A1';
+	
+		await VerbsService.assignVerbToLevel(
+		verb.id, 
+		selectedGrade, 
+		levelToAssign, 
+		selectedTense
+		);
+	
+		setSearchTerm('');
+		setSearchResults([]);
+		loadAssignedVerbs();
+	} catch (err) {
+		alert('Erro ao associar o verbo.');
+	}
+	};
 
   const handleRemoveAssociation = async (associationId) => {
     if (confirm('Remover este verbo deste ano/nível?')) {

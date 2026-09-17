@@ -74,24 +74,27 @@ const VerbsService = {
 
   // 3. Associar verbo ao Ano / Nível PLNM COM O TEMPO VERBAL
   async assignVerbToLevel(verbId, grade, plnnLevel, tense) {
-    const { data, error } = await supabase
-      .from('verb_levels')
-      .insert([
-        {
-          verb_id: verbId,
-          grade: grade ? parseInt(grade) : null,
-          plnn_level: plnnLevel || null,
-          tense: tense || 'Presente do Indicativo'
-        }
-      ])
-      .select();
-
-    if (error) {
-      console.error('Erro ao associar verbo:', error);
-      throw error;
-    }
-    return data[0];
-  },
+  // Garante que o nível tem um valor válido (se estiver vazio, assume 'A1' ou o valor selecionado)
+	const levelToSave = plnnLevel && plnnLevel.trim() !== '' ? plnnLevel : 'A1';
+	
+	const { data, error } = await supabase
+		.from('verb_levels')
+		.insert([
+		{
+			verb_id: verbId,
+			grade: parseInt(grade),
+			plnn_level: levelToSave,
+			tense: tense || 'Presente do Indicativo'
+		}
+		])
+		.select();
+	
+	if (error) {
+		console.error('Erro ao associar verbo:', error);
+		throw error;
+	}
+	return data;
+	}
 
   // 4. Criar ou atualizar um verbo e as suas 6 conjugações no catálogo global
   async saveCatalogVerb(verbData) {
