@@ -135,8 +135,7 @@ function VerbCatalogTab() {
       {/* Painel de Edição do Verbo Selecionado */}
       {selectedVerb && (
         <div style={{ border: '1px solid #e0e0e0', padding: '15px', borderRadius: '6px' }}>
-          <h4>Verbo: <span style={{ color: '#007bff' }}>{selectedVerb.infinitive}</span></h4>
-			<div style={{ display: 'flex', alignItems: 'center', gap: '24px', flexWrap: 'wrap', marginBottom: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '24px', flexWrap: 'wrap', marginBottom: '16px' }}>
 			  <div>
 				<span style={{ fontWeight: 'bold' }}>Verbo: </span>
 				<span style={{ color: '#0070f3', fontWeight: 'bold' }}>{selectedVerb?.infinitive}</span>
@@ -156,6 +155,7 @@ function VerbCatalogTab() {
 				</span>
 			  </div>
 			</div>
+			
           {/* Seletor do Tempo Verbal */}
           <div style={{ marginBottom: '15px' }}>
             <label style={{ marginRight: '10px', fontWeight: 'bold' }}>Tempo Verbal:</label>

@@ -155,7 +155,6 @@ function VerbsTab() {
             <option value="Pretérito Perfeito do Indicativo">Pretérito Perfeito do Indicativo</option>
 			<option value="Infinitivo Impessoal">Infinitivo Impessoal</option>
 			<option value="Particípio Passado">Particípio Passado</option>
-			<option value="Gerúndio">Gerúndio</option>
 			<option value="Presente do Indicativo">Presente do Indicativo</option>
 			<option value="Pretérito Imperfeito do Indicativo">Pretérito Imperfeito do Indicativo</option>
 			<option value="Pretérito Imperfeito do Subjuntivo">Pretérito Imperfeito do Subjuntivo</option>
