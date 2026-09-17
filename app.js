@@ -617,7 +617,7 @@ const handleSelectStudent = async (student) => {
             >			
               🗣️ Verbos
             </button>
-			{/* NOVO BOTÃO DO CATÁLOGO DE VERBOS */}
+			
 			<button
 				type="button"
 				className={`btn ${dashboardTab === "catalogo_verbos" ? "btn-primary" : "btn-outline"}`}

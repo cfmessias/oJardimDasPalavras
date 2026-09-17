@@ -175,3 +175,4 @@ function VerbCatalogTab() {
     </div>
   );
 }
+window.VerbCatalogTab = VerbCatalogTab;
