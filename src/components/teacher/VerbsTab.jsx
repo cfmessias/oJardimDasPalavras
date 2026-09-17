@@ -25,7 +25,6 @@ function VerbsTab() {
 
 	// Garante que o loadAssignedVerbs é recarregado quando o nível muda
 
-
   const [assignedVerbs, setAssignedVerbs] = React.useState([]);
   const [searchTerm, setSearchTerm] = React.useState('');
   const [searchResults, setSearchResults] = React.useState([]);
