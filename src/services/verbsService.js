@@ -94,7 +94,7 @@ const VerbsService = {
 		throw error;
 	}
 	return data;
-	}
+	},
 
   // 4. Criar ou atualizar um verbo e as suas 6 conjugações no catálogo global
   async saveCatalogVerb(verbData) {
