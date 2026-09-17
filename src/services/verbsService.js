@@ -61,7 +61,7 @@ window.VerbsService = {
         is_regular,
         verb_conjugations (*)
       `)
-      .ilike('infinitive', `%${searchTerm.trim()}%`)
+      .ilike('infinitive', `${searchTerm.trim()}%`)
       .limit(10);
 
     if (error) {
