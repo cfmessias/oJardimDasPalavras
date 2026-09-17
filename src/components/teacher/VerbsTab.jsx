@@ -24,12 +24,7 @@ function VerbsTab() {
 	};
 
 	// Garante que o loadAssignedVerbs é recarregado quando o nível muda
-	const loadAssignedVerbs = React.useCallback(async () => {
-	  setLoading(true);
-	  const data = await VerbsService.getVerbsByLevel(selectedGrade, selectedPlnnLevel);
-	  setAssignedVerbs(data);
-	  setLoading(false);
-	}, [selectedGrade, selectedPlnnLevel]);
+
 
   const [assignedVerbs, setAssignedVerbs] = React.useState([]);
   const [searchTerm, setSearchTerm] = React.useState('');
