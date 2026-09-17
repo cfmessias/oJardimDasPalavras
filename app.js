@@ -49,17 +49,6 @@ function App() {
   
   // Estados para Verbos
   const [verbs, setVerbs] = React.useState([]);
-  const [editingVerbId, setEditingVerbId] = React.useState(null);
-  const [verbInfinitive, setVerbInfinitive] = React.useState('');
-  const [verbTense, setVerbTense] = React.useState('Presente do Indicativo');
-  const [verbIsRegular, setVerbIsRegular] = React.useState(true);
-  const [conjEu, setConjEu] = React.useState('');
-  const [conjTu, setConjTu] = React.useState('');
-  const [conjEle, setConjEle] = React.useState('');
-  const [conjNos, setConjNos] = React.useState('');
-  const [conjVos, setConjVos] = React.useState('');
-  const [conjEles, setConjEles] = React.useState('');
-  const [savingVerb, setSavingVerb] = React.useState(false);
   
   // Estados para Gramática
   const [grammarList, setGrammarList] = React.useState([]);
@@ -103,6 +92,17 @@ function App() {
     }
     initApp();
   }, []);
+
+// Carregar os verbos da turma sempre que o Ano ou Nível PLNM mudar
+  React.useEffect(() => {
+    async function loadVerbsForCurrentLevel() {
+      if (selectedGrade) {
+        const verbosDaTurma = await VerbsService.getVerbsByLevel(selectedGrade, selectedPlnnLevel);
+        setVerbs(verbosDaTurma);
+      }
+    }
+    loadVerbsForCurrentLevel();
+  }, [selectedGrade, selectedPlnnLevel]);
 
   const loadTeacherStudents = async (teacherId) => {
     const list = await getStudentsByTeacher(teacherId);
@@ -305,199 +305,8 @@ const handleWordSubmit = async (e) => {
   };
 
   // ---------- Verbos ----------
-  const openVerbsTab = async () => {
-    setDashboardTab("verbos");
-    const { data } = await supabase.from('verbs').select('*').order('id');
-    if (data) setVerbs(data);
-  };
-
-  const clearVerbForm = () => {
-    setEditingVerbId(null);
-    setVerbInfinitive('');
-    setVerbTense('Presente do Indicativo');
-    setVerbIsRegular(true);
-    setConjEu('');
-    setConjTu('');
-    setConjEle('');
-    setConjNos('');
-    setConjVos('');
-    setConjEles('');
-  };
-
-  const startEditVerb = (v) => {
-    setEditingVerbId(v.id);
-    setVerbInfinitive(v.infinitive || '');
-    setVerbTense(v.tense || 'Presente do Indicativo');
-    setVerbIsRegular(v.is_regular !== false);
-    setConjEu(v.conj_eu || '');
-    setConjTu(v.conj_tu || '');
-    setConjEle(v.conj_ele || '');
-    setConjNos(v.conj_nos || '');
-    setConjVos(v.conj_vos || '');
-    setConjEles(v.conj_eles || '');
-  };
-
-  const handleVerbSubmit = async (e) => {
-  e.preventDefault();
-
-  if (!verbInfinitive.trim()) return;
-
-  setSavingVerb(true);
-  try {
-    let verbId = editingVerbId;
-
-    const verbPayload = {
-      infinitive: verbInfinitive.trim(),
-      is_regular: verbIsRegular,
-      grade: Number(selectedGrade),
-      plnn_level: selectedPlnnLevel || 'A1',
-    };
-
-    if (verbId) {
-      // 1. Atualizar o verbo principal
-      const { error: verbErr } = await supabase
-        .from('verbs')
-        .update(verbPayload)
-        .eq('id', verbId);
-
-      if (verbErr) throw verbErr;
-
-      // Limpar conjugações antigas deste tempo verbal para reinserir
-      await supabase
-        .from('verb_conjugations')
-        .delete()
-        .eq('verb_id', verbId)
-        .eq('tense', verbTense);
-    } else {
-      // 2. Criar novo verbo principal
-      const { data: newVerb, error: verbErr } = await supabase
-        .from('verbs')
-        .insert([verbPayload])
-        .select('id')
-        .single();
-
-      if (verbErr) throw verbErr;
-      verbId = newVerb.id;
-    }
-
-    // 3. Inserir as 6 conjugações na tabela 'verb_conjugations'
-    const conjugations = [
-      { person: 'eu', conjugated_form: conjEu.trim() },
-      { person: 'tu', conjugated_form: conjTu.trim() },
-      { person: 'ele', conjugated_form: conjEle.trim() },
-      { person: 'nos', conjugated_form: conjNos.trim() },
-      { person: 'vos', conjugated_form: conjVos.trim() },
-      { person: 'eles', conjugated_form: conjEles.trim() },
-    ].filter(c => c.conjugated_form !== '');
-
-    if (conjugations.length > 0) {
-      const conjugationsToInsert = conjugations.map(c => ({
-        verb_id: verbId,
-        tense: verbTense,
-        person: c.person,
-        conjugated_form: c.conjugated_form,
-      }));
-
-      const { error: conjErr } = await supabase
-        .from('verb_conjugations')
-        .insert(conjugationsToInsert);
-
-      if (conjErr) throw conjErr;
-    }
-
-    clearVerbForm();
-    await openVerbsTab(); // Recarrega os verbos atualizados
-
-  } catch (err) {
-    alert("Erro ao guardar verbo: " + err.message);
-  } finally {
-    setSavingVerb(false);
-  }
-};
-  const handleDeleteVerb = async (id) => {
-    if (!confirm("Remover este verbo?")) return;
-    const { error } = await supabase.from('verbs').delete().eq('id', id);
-    if (error) {
-      alert("Erro ao remover verbo: " + error.message);
-      return;
-    }
-    setVerbs(prev => prev.filter(v => v.id !== id));
-  };
- 
-  // Função para processar e carregar o ficheiro CSV de Verbos
-   const handleVerbsFileUpload = async (event) => {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = async (e) => {
-    try {
-      const text = e.target.result;
-      const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-      
-      if (lines.length < 2) {
-        alert("O ficheiro está vazio ou inválido.");
-        return;
-      }
-
-      const rows = lines.slice(1);
-      const personsMap = ['eu', 'tu', 'ele', 'nos', 'vos', 'eles'];
-
-      for (const row of rows) {
-        const cols = row.split(/[,;]/).map(c => c.trim().replace(/^["']|["']$/g, ''));
-        const infinitive = cols[0];
-        const tense = cols[1] || 'Presente do Indicativo';
-
-        if (!infinitive) continue;
-
-        // 1. Garante ou cria o registo do verbo na tabela principal 'verbs'
-        let { data: verbRecord, error: verbErr } = await supabase
-          .from('verbs')
-          .select('id')
-          .eq('infinitive', infinitive)
-          .maybeSingle();
-
-        if (verbErr) throw verbErr;
-
-        if (!verbRecord) {
-          const { data: newVerb, error: createErr } = await supabase
-            .from('verbs')
-            .insert([{ infinitive, grade: Number(selectedGrade), plnn_level: selectedPlnnLevel || 'A1' }])
-            .select('id')
-            .single();
-
-          if (createErr) throw createErr;
-          verbRecord = newVerb;
-        }
-
-        // 2. Mapeia as 6 conjugações para a tabela 'verb_conjugations'
-        const conjugationsToInsert = personsMap.map((person, idx) => ({
-          verb_id: verbRecord.id,
-          tense: tense,
-          person: person,
-          conjugated_form: cols[idx + 2] || ''
-        })).filter(c => c.conjugated_form !== '');
-
-        if (conjugationsToInsert.length > 0) {
-          const { error: conjErr } = await supabase
-            .from('verb_conjugations')
-            .insert(conjugationsToInsert);
-
-          if (conjErr) throw conjErr;
-        }
-      }
-
-      alert("Importação de verbos e conjugações concluída com sucesso! 🎉");
-      openVerbsTab(); // Recarrega os dados na interface
-
-    } catch (err) {
-      alert("Erro ao importar verbos: " + err.message);
-    } finally {
-      event.target.value = '';
-    }
-  };
-
-  reader.readAsText(file);
+  const openVerbsTab = () => {
+  setDashboardTab("verbos");
 };
  
   // ---------- Gramática ----------
@@ -1146,106 +955,10 @@ const handleSelectStudent = async (student) => {
             </React.Fragment>
           )}
   
-          {/* 4. SEPARADOR: VERBOS */}
-         {dashboardTab === "verbos" && (
-          <React.Fragment>
-             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3>{editingVerbId ? "Editar Verbo" : `Adicionar Verbo para ${selectedGrade}.º Ano (${selectedPlnnLevel || 'A1'})`}</h3>
-              
-              {/* Botão de Upload em Lote */}
-              <label className="btn btn-outline" style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                📁 Importar CSV de Verbos
-                <input 
-                  type="file" 
-                  accept=".csv, .txt" 
-                  onChange={handleVerbsFileUpload} 
-                  style={{ display: 'none' }} 
-                />
-              </label>
-            </div>
-                    
-            <form onSubmit={handleVerbSubmit} autoComplete="off" style={{ display: 'grid', gap: '12px', marginTop: '12px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#4b5563' }}>Verbo (Infinitivo)</label>
-                  <input
-                    type="text"
-                    className="input"
-                    placeholder="Ex: cantar"
-                    value={verbInfinitive}
-                    onChange={(e) => setVerbInfinitive(e.target.value)}
-                    required
-                  />
-                </div>
-        
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#4b5563' }}>Tempo Verbal</label>
-                  <select className="input" value={verbTense} onChange={(e) => setVerbTense(e.target.value)}>
-                    <option value="Presente do Indicativo">Presente do Indicativo</option>
-                    <option value="Pretérito Perfeito">Pretérito Perfeito</option>
-                    <option value="Pretérito Imperfeito">Pretérito Imperfeito</option>
-                    <option value="Futuro do Indicativo">Futuro do Indicativo</option>
-                  </select>
-                </div>
-        
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#4b5563' }}>Regularidade</label>
-                  <select className="input" value={verbIsRegular ? "true" : "false"} onChange={(e) => setVerbIsRegular(e.target.value === "true")}>
-                    <option value="true">Regular</option>
-                    <option value="false">Irregular</option>
-                  </select>
-                </div>
-              </div>
-        
-              {/* Formulário rápido para as 6 pessoas gramaticais */}
-              <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#374151', marginTop: '8px' }}>Conjugações:</span>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
-                <input type="text" className="input" placeholder="Eu (ex: canto)" value={conjEu} onChange={(e) => setConjEu(e.target.value)} />
-                <input type="text" className="input" placeholder="Tu (ex: cantas)" value={conjTu} onChange={(e) => setConjTu(e.target.value)} />
-                <input type="text" className="input" placeholder="Ele/Ela (ex: canta)" value={conjEle} onChange={(e) => setConjEle(e.target.value)} />
-                <input type="text" className="input" placeholder="Nós (ex: cantamos)" value={conjNos} onChange={(e) => setConjNos(e.target.value)} />
-                <input type="text" className="input" placeholder="Vós (ex: cantais)" value={conjVos} onChange={(e) => setConjVos(e.target.value)} />
-                <input type="text" className="input" placeholder="Eles/Elas (ex: cantam)" value={conjEles} onChange={(e) => setConjEles(e.target.value)} />
-              </div>
-        
-              <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
-                <button type="submit" className="btn btn-primary" disabled={savingVerb}>
-                  {editingVerbId ? "Guardar alterações" : "Adicionar verbo"}
-                </button>
-                {editingVerbId && (
-                  <button type="button" className="btn btn-outline" onClick={clearVerbForm}>
-                    Cancelar edição
-                  </button>
-                )}
-              </div>
-            </form>
-        
-            <hr style={{ margin: '24px 0' }} />
-        
-            <h3>
-              Verbos Registados ({
-                verbs.filter(v => Number(v.grade) === Number(selectedGrade) && (v.plnn_level || 'A1') === selectedPlnnLevel).length
-              })
-            </h3>
-        
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '12px', marginTop: '16px' }}>
-              {verbs
-                .filter(v => Number(v.grade) === Number(selectedGrade) && (v.plnn_level || 'A1') === selectedPlnnLevel)
-                .map((v) => (
-                  <div key={v.id} style={{ border: '1px solid #ddd', padding: '12px', borderRadius: '8px', backgroundColor: '#fafafa' }}>
-                    <h4 style={{ margin: '0 0 4px 0', color: '#111827' }}>{v.infinitive}</h4>
-                    <p style={{ margin: 0, color: '#6b7280', fontSize: '0.85rem' }}>
-                      {v.tense || 'Presente'} • {v.is_regular ? 'Regular' : 'Irregular'}
-                    </p>
-                    <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
-                      <button type="button" className="link-btn" onClick={() => startEditVerb(v)}>Editar</button>
-                      <button type="button" className="link-btn" onClick={() => handleDeleteVerb(v.id)}>Remover</button>
-                    </div>
-                  </div>
-                ))}
-            </div>
-          </React.Fragment>
-        )}
+        {/* 4. SEPARADOR: VERBOS */}
+		{dashboardTab === "verbos" && (
+		  <VerbsTab />
+		)}
   
           {/* 5. SEPARADOR: GRAMÁTICA */}
           {dashboardTab === "gramatica" && (
