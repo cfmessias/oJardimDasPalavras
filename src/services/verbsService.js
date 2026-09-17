@@ -2,6 +2,7 @@
 
 const VerbsService = {
   // 1. Obter verbos parametrizados trazendo também o tempo verbal (tense) e conjugações
+// 1. Obter verbos parametrizados e filtrar as conjugações pelo tempo verbal correto
   async getVerbsByLevel(grade, plnnLevel) {
     let query = supabase
       .from('verb_levels')
@@ -27,11 +28,24 @@ const VerbsService = {
       return [];
     }
 
-    return data.map(item => ({
-      association_id: item.id,
-      tense: item.tense,
-      ...item.verbs
-    }));
+    return data.map(item => {
+      // Determina o tempo verbal definido para esta associação (padrão: Presente do Indicativo)
+      const targetTense = item.tense || 'Presente do Indicativo';
+
+      // Filtra as conjugações do verbo para manter APENAS as do tempo verbal correto
+      const filteredConjugations = (item.verbs?.verb_conjugations || []).filter(
+        conj => conj.tense === targetTense
+      );
+
+      return {
+        association_id: item.id,
+        tense: targetTense,
+        id: item.verbs.id,
+        infinitive: item.verbs.infinitive,
+        is_regular: item.verbs.is_regular,
+        verb_conjugations: filteredConjugations
+      };
+    });
   },
 
   // 2. Pesquisar verbos no catálogo com as respetivas conjugações

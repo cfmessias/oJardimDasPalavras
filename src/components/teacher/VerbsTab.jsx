@@ -11,7 +11,25 @@ function VerbsTab() {
 	setSelectedPlnnLevel(value);
 	localStorage.setItem('verbsTab_selectedPlnnLevel', value);
   };
-  const [selectedTense, setSelectedTense] = React.useState('Presente do Indicativo');
+  // No VerbsTab.jsx:
+
+	const [selectedTense, setSelectedTense] = React.useState(() => {
+	  return localStorage.getItem('verbsTab_selectedTense') || 'Presente do Indicativo';
+	});
+
+	const handleTenseChange = (e) => {
+	  const value = e.target.value;
+	  setSelectedTense(value);
+	  localStorage.setItem('verbsTab_selectedTense', value);
+	};
+
+	// Garante que o loadAssignedVerbs é recarregado quando o nível muda
+	const loadAssignedVerbs = React.useCallback(async () => {
+	  setLoading(true);
+	  const data = await VerbsService.getVerbsByLevel(selectedGrade, selectedPlnnLevel);
+	  setAssignedVerbs(data);
+	  setLoading(false);
+	}, [selectedGrade, selectedPlnnLevel]);
 
   const [assignedVerbs, setAssignedVerbs] = React.useState([]);
   const [searchTerm, setSearchTerm] = React.useState('');
