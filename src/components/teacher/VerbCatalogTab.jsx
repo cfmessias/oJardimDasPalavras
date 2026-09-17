@@ -7,10 +7,21 @@ function VerbCatalogTab() {
   const [isSaving, setIsSaving] = React.useState(false);
 
   const tenses = [
-    'Presente do Indicativo',
-    'Pretérito Perfeito do Indicativo',
-    'Pretérito Imperfeito do Indicativo',
-    'Futuro do Indicativo'
+	'Presente do Indicativo',
+	'Pretérito Perfeito do Indicativo',
+	'Pretérito Imperfeito do Indicativo',
+	'Pretérito Mais-Que-Perfeito do Indicativo',
+	'Futuro do Indicativo',
+	'Condicional',
+	'Presente do Subjuntivo',
+	'Pretérito Imperfeito do Subjuntivo',
+	'Futuro do Subjuntivo',
+	'Infinitivo Impessoal',
+	'Infinitivo Pessoal',
+	'Gerúndio',
+	'Particípio Passado',
+	'Imperativo Afirmativo',
+	'Imperativo Negativo'
   ];
 
   const persons = ['eu', 'tu', 'ele', 'nós', 'vós', 'eles'];
