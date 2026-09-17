@@ -1,7 +1,7 @@
 // src/services/verbsService.js
 
 const VerbsService = {
-  // Obter verbos associados a um determinado Ano ou Nível PLNM via verb_levels
+  // 1. Obter verbos parametrizados trazendo também o tempo verbal (tense) e conjugações
   async getVerbsByLevel(grade, plnnLevel) {
     let query = supabase
       .from('verb_levels')
@@ -9,14 +9,16 @@ const VerbsService = {
         id,
         grade,
         plnn_level,
+        tense,
         verbs (
           id,
           infinitive,
-          is_regular
+          is_regular,
+          verb_conjugations (*)
         )
       `);
 
-    if (grade) query = query.eq('grade', grade);
+    if (grade) query = query.eq('grade', parseInt(grade));
     if (plnnLevel) query = query.eq('plnn_level', plnnLevel);
 
     const { data, error } = await query;
@@ -24,20 +26,26 @@ const VerbsService = {
       console.error('Erro ao obter verbos parametrizados:', error);
       return [];
     }
-    
+
     return data.map(item => ({
       association_id: item.id,
+      tense: item.tense,
       ...item.verbs
     }));
   },
 
-  // Pesquisar no catálogo geral de ~12.000 verbos
+  // 2. Pesquisar verbos no catálogo com as respetivas conjugações
   async searchCatalogVerbs(searchTerm) {
     if (!searchTerm || searchTerm.trim().length < 2) return [];
 
     const { data, error } = await supabase
       .from('verbs')
-      .select('id, infinitive, is_regular')
+      .select(`
+        id, 
+        infinitive, 
+        is_regular,
+        verb_conjugations (*)
+      `)
       .ilike('infinitive', `%${searchTerm.trim()}%`)
       .limit(10);
 
@@ -48,15 +56,16 @@ const VerbsService = {
     return data;
   },
 
-  // Associar um verbo a um Ano / Nível PLNM
-  async assignVerbToLevel(verbId, grade, plnnLevel) {
+  // 3. Associar verbo ao Ano / Nível PLNM COM O TEMPO VERBAL
+  async assignVerbToLevel(verbId, grade, plnnLevel, tense) {
     const { data, error } = await supabase
       .from('verb_levels')
       .insert([
         {
           verb_id: verbId,
           grade: grade ? parseInt(grade) : null,
-          plnn_level: plnnLevel || null
+          plnn_level: plnnLevel || null,
+          tense: tense || 'Presente do Indicativo'
         }
       ])
       .select();
@@ -68,17 +77,65 @@ const VerbsService = {
     return data[0];
   },
 
-  // Remover associação
+  // 4. Criar ou atualizar um verbo e as suas 6 conjugações no catálogo global
+  async saveCatalogVerb(verbData) {
+    const { id, infinitive, is_regular, tense, conjugations } = verbData;
+    let verbId = id;
+
+    if (verbId) {
+      // Atualiza o verbo no catálogo
+      const { error } = await supabase
+        .from('verbs')
+        .update({ infinitive, is_regular })
+        .eq('id', verbId);
+      if (error) throw error;
+    } else {
+      // Cria novo verbo no catálogo
+      const { data, error } = await supabase
+        .from('verbs')
+        .insert([{ infinitive, is_regular }])
+        .select('id')
+        .single();
+      if (error) throw error;
+      verbId = data.id;
+    }
+
+    // Atualiza conjugações para este tempo verbal
+    if (conjugations && tense) {
+      await supabase
+        .from('verb_conjugations')
+        .delete()
+        .eq('verb_id', verbId)
+        .eq('tense', tense);
+
+      const toInsert = Object.entries(conjugations)
+        .filter(([_, val]) => val && val.trim() !== '')
+        .map(([person, form]) => ({
+          verb_id: verbId,
+          tense: tense,
+          person: person,
+          conjugated_form: form.trim()
+        }));
+
+      if (toInsert.length > 0) {
+        const { error: conjErr } = await supabase
+          .from('verb_conjugations')
+          .insert(toInsert);
+        if (conjErr) throw conjErr;
+      }
+    }
+
+    return verbId;
+  },
+
+  // 5. Remover associação da tabela verb_levels
   async removeVerbFromLevel(associationId) {
     const { error } = await supabase
       .from('verb_levels')
       .delete()
       .eq('id', associationId);
 
-    if (error) {
-      console.error('Erro ao remover associação:', error);
-      throw error;
-    }
+    if (error) throw error;
     return true;
   }
 };
