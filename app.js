@@ -31,7 +31,7 @@ function App() {
   const [currentWord, setCurrentWord] = useState(null);
   const [selectedTheme, setSelectedTheme] = useState(null);
   const [selectedPlnnLevel, setSelectedPlnnLevel] = useState("A1"); // Alterado para PLNM
-
+  
   // Define a vista inicial: se for URL de prof e já tiver sessão, vai para "dashboard"; senão vai para "auth"
   const [currentView, setCurrentView] = useState(() => {
     if (isProfUrl) {
@@ -69,6 +69,7 @@ function App() {
   const [newStudentPin, setNewStudentPin] = useState("");
   const [newStudentGrade, setNewStudentGrade] = useState("1");
 
+  const [newStudentPlnnLevel, setNewStudentPlnnLevel] = React.useState("A1");
   const [dashboardTab, setDashboardTab] = useState("alunos");
   const [allWords, setAllWords] = useState([]);
   const [editingWordId, setEditingWordId] = useState(null);
