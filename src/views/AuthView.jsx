@@ -1,6 +1,4 @@
-import React from 'react';
-
-export function AuthView({
+function AuthView({
   isRegistering,
   setIsRegistering,
   regName,
