@@ -573,6 +573,7 @@ const handleWordSubmit = async (e) => {
   );
 }
   // 4. ECRÃ: Visão do Aluno / Jogo Pedagógico PLNN
+  // 4. ECRÃ: Visão do Aluno / Jogo Pedagógico PLNN
 if (currentView === "game") {
   return (
     <StudentGameView 
@@ -587,6 +588,7 @@ if (currentView === "game") {
       handleModuleComplete={handleModuleComplete}
     />
   );
+ }
 }
 
 const rootElement = document.getElementById("root");
