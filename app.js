@@ -7,7 +7,10 @@ function App() {
   const isProfUrl = window.location.search.includes("prof");
 
   // Estado Global
-  const [isRegistering, setIsRegistering] = useState(false);
+  const [isRegistering, setIsRegistering] = useState(() => {
+    return isProfUrl;
+  });
+
   const [regName, setRegName] = useState("");
   const [regSchool, setRegSchool] = useState("");
 
@@ -22,19 +25,19 @@ function App() {
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [selectedModuleId, setSelectedModuleId] = useState(1);
   const [selectedGrade, setSelectedGrade] = useState(1); 
-  const [newStudentPlnnLevel, setNewStudentPlnnLevel] = useState("A1");
+  const [newStudentPlnmLevel, setNewStudentPlnmLevel] = useState("A1"); // Alterado para PLNM
   const [words, setWords] = useState([]);
-  const [plnnExercises, setPlnnExercises] = useState([]);
+  const [plnmExercises, setPlnmExercises] = useState([]); // Alterado para PLNM
   const [progress, setProgress] = useState({});
   const [currentWord, setCurrentWord] = useState(null);
   const [selectedTheme, setSelectedTheme] = useState(null);
-  const [selectedPlnnLevel, setSelectedPlnnLevel] = useState("A1");
- 
-  // Define a vista inicial: se for URL de prof e já tiver sessão, vai para o dashboard; senão login ou alunos
+  const [selectedPlnmLevel, setSelectedPlnmLevel] = useState("A1"); // Alterado para PLNM
+
+  // Define a vista inicial: se for URL de prof e já tiver sessão, vai para "dashboard"; senão vai para "auth"
   const [currentView, setCurrentView] = useState(() => {
     if (isProfUrl) {
       const saved = localStorage.getItem("jardim_teacher");
-      return saved ? "dashboard" : "teacher_login";
+      return saved ? "dashboard" : "auth"; // Alterado de "teacher_login" para "auth"
     }
     return "student_select";
   });
