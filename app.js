@@ -393,19 +393,16 @@ const handleWordSubmit = async (e) => {
     setGrammarList(prev => prev.filter(g => g.id !== id));
   };
 
-  // Ações do Aluno e Carregamento de Exercícios por Nível PLNN
-  // REMOVER as funções: fetchPlnnExercises e handleLevelChange
-
-// SUBSTITUIR a função handleSelectStudent por esta:
-const handleSelectStudent = async (student) => {
-  const pin = prompt(`Digita o teu PIN para entrar, ${student.name}:`);
-  if (!pin) return;
-
-  const validated = await verifyStudentPin(student.id, pin);
-  if (!validated) {
-    alert("PIN incorreto!");
-    return;
-  }
+  // SUBSTITUIR a função handleSelectStudent por esta:
+  const handleSelectStudent = async (student) => {
+    const pin = prompt(`Digita o teu PIN para entrar, ${student.name}:`);
+    if (!pin) return;
+  
+    const validated = await verifyStudentPin(student.id, pin);
+    if (!validated) {
+      alert("PIN incorreto!");
+      return;
+    }
 
   setSelectedStudent(validated);
   const gradeNum = Number(validated.grade);
@@ -576,113 +573,20 @@ const handleSelectStudent = async (student) => {
   );
 }
   // 4. ECRÃ: Visão do Aluno / Jogo Pedagógico PLNN
-  if (currentView === "game") {
-    const studentGrade = Number(selectedStudent?.grade || 1);
-    const activeModuleId = selectedModuleId || 1;
-
-    // Lista de módulos disponíveis dependendo do Ano
-    const availableModules = [
-      { id: 1, title: studentGrade <= 2 ? "Descobre a Palavra" : "Gramática & Concordância" },
-      { id: 2, title: studentGrade <= 2 ? "Letra em Falta" : "Construção de Frases" },
-      { id: 3, title: studentGrade <= 2 ? "Completa a Frase" : "Leitura & Interpretação" }
-    ];
-
-    // Roteamento Dinâmico dos Componentes do exercises.js
-    const renderActiveExercise = () => {
-      // 1.º e 2.º ANO (Lógica de Vocabulário & Leitura Inicial)
-      if (studentGrade === 1) {
-        if (activeModuleId === 1) return <Grade1Module1 words={words} />;
-        if (activeModuleId === 2) return <MissingLetterList words={words} onComplete={() => handleModuleComplete(2)} />;
-        if (activeModuleId === 3) return <Grade1Module3 words={words} onComplete={() => handleModuleComplete(3)} />;
-      }
-
-      if (studentGrade === 2) {
-        if (activeModuleId === 1) return <MissingLetterList words={words} onComplete={() => handleModuleComplete(1)} />;
-        if (activeModuleId === 2) return <Grade2Module2 words={words} onComplete={() => handleModuleComplete(2)} />;
-        if (activeModuleId === 3) return <Grade2Module3 words={words} onComplete={() => handleModuleComplete(3)} />;
-      }
-
-      // 3.º ao 6.º ANO (Lógica de Módulos PLNN: A1, A2, B1, B2)
-      const moduleExercises = plnnExercises.filter(ex => ex.module_id === activeModuleId);
-
-      if (activeModuleId === 1) {
-        return <Grade3Module1 exercises={moduleExercises} onComplete={() => handleModuleComplete(1)} />;
-      }
-      if (activeModuleId === 2) {
-        return <Grade3Module2 exercises={moduleExercises} onComplete={() => handleModuleComplete(2)} />;
-      }
-      if (activeModuleId === 3) {
-        return <Grade4Module3 exercises={moduleExercises} onComplete={() => handleModuleComplete(3)} />;
-      }
-
-      return <Grade1Module1 words={words} />;
-    };
-
-    return (
-      <div className="container" style={{ maxWidth: '900px', margin: '0 auto', padding: '16px' }}>
-        <div className="card" style={{ padding: '24px' }}>
-          
-          {/* Cabeçalho */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', gap: '12px', flexWrap: 'wrap' }}>
-            <div>
-              <h2 style={{ margin: 0 }}>Jardim de {selectedStudent?.name}</h2>
-              <span style={{ fontSize: '0.9rem', color: '#6b7280' }}>
-                {studentGrade}.º Ano {studentGrade >= 3 && `• Nível PLNM: ${selectedStudent?.plnn_level || 'A1'}`}
-              </span>
-            </div>
-
-            {teacher ? (
-              <button onClick={() => setCurrentView("dashboard")} className="btn btn-outline">
-                ← Voltar ao Painel
-              </button>
-            ) : (
-              <button 
-                onClick={() => { 
-                  setSelectedStudent(null); 
-                  setCurrentView("student_select"); 
-                }} 
-                className="btn btn-outline"
-              >
-                Sair
-              </button>
-            )}
-          </div>
-
-          {/* SELETOR DE MÓDULOS */}
-          <div style={{ marginBottom: '20px', backgroundColor: '#F3F4F6', padding: '12px', borderRadius: '12px' }}>
-            <label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#4B5563', display: 'block', marginBottom: '8px' }}>
-              Escolhe o Módulo de Aprendizagem:
-            </label>
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              {availableModules.map((mod) => (
-                <button
-                  key={mod.id}
-                  onClick={() => setSelectedModuleId(mod.id)}
-                  className={`btn ${activeModuleId === mod.id ? 'btn-primary' : 'btn-outline'}`}
-                  style={{
-                    backgroundColor: activeModuleId === mod.id ? '#F2704E' : '#FFFFFF',
-                    color: activeModuleId === mod.id ? '#FFFFFF' : '#374151',
-                    fontSize: '0.9rem'
-                  }}
-                >
-                  {mod.title}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <hr style={{ margin: '20px 0', border: '0', borderTop: '1px solid #E5E7EB' }} />
-
-
-          {/* ÁREA PRINCIPAL DO EXERCÍCIO */}
-          <div style={{ marginTop: '16px' }}>
-            {renderActiveExercise()}
-          </div>
-
-        </div>
-      </div>
-    );
-  }
+if (currentView === "game") {
+  return (
+    <StudentGameView 
+      selectedStudent={selectedStudent}
+      selectedModuleId={selectedModuleId}
+      setSelectedModuleId={setSelectedModuleId}
+      teacher={teacher}
+      setCurrentView={setCurrentView}
+      setSelectedStudent={setSelectedStudent}
+      words={words}
+      plnnExercises={plnnExercises}
+      handleModuleComplete={handleModuleComplete}
+    />
+  );
 }
 
 const rootElement = document.getElementById("root");
