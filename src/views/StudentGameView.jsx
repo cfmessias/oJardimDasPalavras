@@ -38,20 +38,24 @@
 ];
 
     // Roteamento Dinâmico dos Componentes do exercises.js
+    // Roteamento Dinâmico dos Componentes
     const renderActiveExercise = () => {
-      // 1.º e 2.º ANO
+      const studentLevel = selectedStudent?.plnn_level || 'A1';
+
+      // 1.º ANO
       if (studentGrade === 1) {
         if (activeModuleId === 1 && typeof Grade1Module1 !== 'undefined') return <Grade1Module1 words={words} />;
         if (activeModuleId === 2 && typeof MissingLetterList !== 'undefined') return <MissingLetterList words={words} onComplete={() => handleModuleComplete && handleModuleComplete(2)} />;
         if (activeModuleId === 3 && typeof Grade1Module3 !== 'undefined') return <Grade1Module3 words={words} onComplete={() => handleModuleComplete && handleModuleComplete(3)} />;
-        if (activeModuleId === 4 && typeof VerbExerciseView !== 'undefined') return <VerbExerciseView grade={studentGrade} plnnLevel={selectedStudent?.plnn_level || 'A1'} />;
+        if (activeModuleId === 4 && typeof VerbExerciseView !== 'undefined') return <VerbExerciseView grade={studentGrade} level={studentLevel} />;
       }
 
+      // 2.º ANO
       if (studentGrade === 2) {
-        if (activeModuleId === 1 && typeof MissingLetterList !== 'undefined') return <MissingLetterList words={words} onComplete={() => handleModuleComplete && handleModuleComplete(1)} />;
-        if (activeModuleId === 2 && typeof Grade2Module2 !== 'undefined') return <Grade2Module2 words={words} onComplete={() => handleModuleComplete && handleModuleComplete(2)} />;
+        if (activeModuleId === 1 && typeof Grade1Module1 !== 'undefined') return <Grade1Module1 words={words} />;
+        if (activeModuleId === 2 && typeof MissingLetterList !== 'undefined') return <MissingLetterList words={words} onComplete={() => handleModuleComplete && handleModuleComplete(2)} />;
         if (activeModuleId === 3 && typeof Grade2Module3 !== 'undefined') return <Grade2Module3 words={words} onComplete={() => handleModuleComplete && handleModuleComplete(3)} />;
-        if (activeModuleId === 4 && typeof VerbExerciseView !== 'undefined') return <VerbExerciseView grade={studentGrade} plnnLevel={selectedStudent?.plnn_level || 'A1'} />;
+        if (activeModuleId === 4 && typeof VerbExerciseView !== 'undefined') return <VerbExerciseView grade={studentGrade} level={studentLevel} />;
       }
 
       // 3.º ao 6.º ANO (PLNM)
@@ -67,7 +71,7 @@
         return <Grade4Module3 exercises={moduleExercises} onComplete={() => handleModuleComplete && handleModuleComplete(3)} />;
       }
       if (activeModuleId === 4 && typeof VerbExerciseView !== 'undefined') {
-        return <VerbExerciseView grade={studentGrade} plnnLevel={selectedStudent?.plnn_level || 'A1'} />;
+        return <VerbExerciseView grade={studentGrade} level={studentLevel} />;
       }
 
       // Fallback padrão se não houver componente específico
