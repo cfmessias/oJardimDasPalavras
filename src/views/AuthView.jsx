@@ -31,7 +31,7 @@ function AuthView({
               />
               <input
                 type="text"
-                className="input"0442
+                className="input"
                 placeholder="Escola / Agrupamento"
                 value={regSchool}
                 onChange={(e) => setRegSchool(e.target.value)}
