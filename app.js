@@ -31,7 +31,7 @@ function App() {
   const [progress, setProgress] = useState({});
   const [currentWord, setCurrentWord] = useState(null);
   const [selectedTheme, setSelectedTheme] = useState(null);
-  const [selectedPlnmLevel, setSelectedPlnmLevel] = useState("A1"); // Alterado para PLNM
+  const [selectedPlnnLevel, setSelectedPlnnLevel] = useState("A1"); // Alterado para PLNM
 
   // Define a vista inicial: se for URL de prof e já tiver sessão, vai para "dashboard"; senão vai para "auth"
   const [currentView, setCurrentView] = useState(() => {
