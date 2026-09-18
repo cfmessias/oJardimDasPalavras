@@ -437,15 +437,17 @@ const handleWordSubmit = async (e) => {
 
   // 1. ECRÃ INICIAL: Seleção do Aluno
   if (currentView === "student_select") {
-    return (
-      <StudentSelectView
-        selectedGrade={selectedGrade}
-        setSelectedGrade={setSelectedGrade}
-        filteredStudents={filteredStudents}
-        handleSelectStudent={handleSelectStudent}
-      />
-    );
-  }
+  return (
+    <StudentSelectView
+      selectedGrade={selectedGrade}
+      setSelectedGrade={setSelectedGrade}
+      filteredStudents={filteredStudents}
+      handleSelectStudent={handleSelectStudent}
+      teacher={teacher}
+      setCurrentView={setCurrentView}
+    />
+  );
+}
 
   // 2. ECRÃ: Autenticação do Professor
   if (currentView === "auth") {

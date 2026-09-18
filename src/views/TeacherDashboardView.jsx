@@ -273,9 +273,13 @@
                   ))}
               </div>
 
-              <button className="btn btn-outline" style={{ marginTop: '24px' }} onClick={() => setCurrentView("student_select")}>
-                Ver Visão do Aluno
-              </button>
+              <button 
+				className="btn btn-outline" 
+				style={{ marginTop: '24px' }} 
+				onClick={() => setCurrentView("student_select")}
+				>
+				👁️ Ver Visão do Aluno
+			  </button>
             </React.Fragment>
           )}
 
