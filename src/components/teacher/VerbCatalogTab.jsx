@@ -172,18 +172,23 @@ function VerbCatalogTab() {
 
           {/* Formulário das 6 Pessoas Gramaticais */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '15px' }}>
-            {persons.map(p => (
-              <div key={p} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ width: '70px', fontWeight: 'bold', textAlign: 'right' }}>{p}:</span>
-                <input
-                  type="text"
-                  value={editingForms[p] || ''}
-                  onChange={(e) => setEditingForms({ ...editingForms, [p]: e.target.value })}
-                  style={{ flex: 1, padding: '6px', borderRadius: '4px', border: '1px solid #ccc' }}
-                />
-              </div>
-            ))}
-          </div>
+			{persons.map(p => {
+				// Mapeamento dinâmico apenas da label visual
+				const displayLabel = p === 'ele' ? 'ele/ela' : p === 'eles' ? 'eles/elas' : p;
+			
+				return (
+				<div key={p} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+					<span style={{ width: '70px', fontWeight: 'bold', textAlign: 'right' }}>{displayLabel}:</span>
+					<input
+					type="text"
+					value={editingForms[p] || ''}
+					onChange={(e) => setEditingForms({ ...editingForms, [p]: e.target.value })}
+					style={{ flex: 1, padding: '6px', borderRadius: '4px', border: '1px solid #ccc' }}
+					/>
+				</div>
+				);
+			})}
+		  </div>
 
           <button
             onClick={handleSaveConjugations}
