@@ -15,10 +15,10 @@
 
     // Lista de módulos disponíveis dependendo do Ano (Inclui o Módulo 4: Verbos & Ações)
     const availableModules = [
-      { id: 1, title: studentGrade <= 2 ? "Descobre a Palavra" : "Gramática & Concordância" },
-      { id: 2, title: studentGrade <= 2 ? "Letra em Falta" : "Construção de Frases" },
-      { id: 3, title: studentGrade <= 2 ? "Completa a Frase" : "Leitura & Interpretação" },
-      { id: 4, title: studentGrade <= 2 ? "Ações & Verbos" : "🗣️ Verbos & Ações" }
+      { id: 1, title: studentGrade <= 2 ? "🔍 Descobre a Palavra" : "📐 Gramática e Concordância" },
+      { id: 2, title: studentGrade <= 2 ? "✏️ Letra em Falta" : "✍️ Construção de Frases" },
+      { id: 3, title: studentGrade <= 2 ? "🧩 Completa a Frase" : "📖 Leitura e Interpretação" },
+      { id: 4, title: studentGrade <= 2 ? "⚡ Ações e Verbos" : "🗣️ Verbos & Ações" }
     ];
 
     // Roteamento Dinâmico dos Componentes do exercises.js
