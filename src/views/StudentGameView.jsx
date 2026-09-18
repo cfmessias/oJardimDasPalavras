@@ -14,12 +14,28 @@
     const activeModuleId = selectedModuleId || 1;
 
     // Lista de módulos disponíveis dependendo do Ano (Inclui o Módulo 4: Verbos & Ações)
-    const availableModules = [
-      { id: 1, title: studentGrade <= 2 ? "🔍 Descobre a Palavra" : "📐 Gramática" },
-      { id: 2, title: studentGrade <= 2 ? "✏️ Letra em Falta" : "✍️ Construção de Frases" },
-      { id: 3, title: studentGrade <= 2 ? "🧩 Completa a Frase" : "📖 Leitura e Interpretação" },
-      { id: 4, title: studentGrade <= 2 ? "⚡ Ações e Verbos" : "🗣️ Verbos e Ações" }
-    ];
+   const availableModules = [
+  { 
+    id: 1, 
+    title: studentGrade <= 2 ? "🔍 Descobre a Palavra" : "📐 Gramática",
+    desc: studentGrade <= 2 ? "Nomeia imagens e objetos" : "Nomes, adjetivos e tempos verbais"
+  },
+  { 
+    id: 2, 
+    title: studentGrade <= 2 ? "✏️ Letra em Falta" : "🧩 Construção de Frases",
+    desc: studentGrade <= 2 ? "Completa o abecedário" : "Ordenação e conectores lógicos"
+  },
+  { 
+    id: 3, 
+    title: studentGrade <= 2 ? "📖 Completa a Frase" : "📚 Leitura e Interpretação",
+    desc: studentGrade <= 2 ? "Escolha de palavras simples" : "Textos, notícias e vocabulário"
+  },
+  { 
+    id: 4, 
+    title: studentGrade <= 2 ? "⚡ Verbos em Ação" : "🗣️ Verbos e Expressões",
+    desc: studentGrade <= 2 ? "Ações do dia a dia" : "Conjuntivo, imperativo e rotinas"
+  }
+];
 
     // Roteamento Dinâmico dos Componentes do exercises.js
     const renderActiveExercise = () => {
