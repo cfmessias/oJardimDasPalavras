@@ -18,7 +18,7 @@
       { id: 1, title: studentGrade <= 2 ? "🔍 Descobre a Palavra" : "📐 Gramática" },
       { id: 2, title: studentGrade <= 2 ? "✏️ Letra em Falta" : "✍️ Construção de Frases" },
       { id: 3, title: studentGrade <= 2 ? "🧩 Completa a Frase" : "📖 Leitura e Interpretação" },
-      { id: 4, title: studentGrade <= 2 ? "⚡ Ações e Verbos" : "🗣️ Verbos & Ações" }
+      { id: 4, title: studentGrade <= 2 ? "⚡ Ações e Verbos" : "🗣️ Verbos e Ações" }
     ];
 
     // Roteamento Dinâmico dos Componentes do exercises.js
