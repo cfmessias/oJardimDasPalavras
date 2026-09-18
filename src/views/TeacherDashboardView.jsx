@@ -173,7 +173,7 @@
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
                   <span style={{ fontWeight: 'bold', fontSize: '0.9rem', color: '#374151', minWidth: '100px' }}>Nível PLNM:</span>
                   <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                    {["A1", "A2", "B1", "B2"].map((level) => (
+                    {["A1", "A2", "B1"].map((level) => (
                       <button
                         key={level}
                         type="button"
