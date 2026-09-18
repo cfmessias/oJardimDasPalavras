@@ -54,19 +54,19 @@ window.VerbsService = {
     if (!searchTerm || searchTerm.trim().length < 2) return [];
 
    const { data, error } = await supabase
-  .from('verbs')
-  .select(`
-    id, 
-    infinitive, 
-    is_regular,
-    gerund,
-    past_participle_regular,
-    past_participle_irregular,
-    verb_conjugations (*)
-  `)
-  .ilike('infinitive', `${searchTerm.trim()}%`)
-  .limit(10);
-
+	.from('verbs')
+	.select(`
+		id, 
+		infinitive, 
+		is_regular,
+		gerund,
+		past_participle,
+		impersonal_infinitive,
+		verb_conjugations (*)
+	`)
+	.ilike('infinitive', `${searchTerm.trim()}%`)
+	.limit(10);
+	
     if (error) {
       console.error('Erro ao pesquisar catálogo:', error);
       return [];

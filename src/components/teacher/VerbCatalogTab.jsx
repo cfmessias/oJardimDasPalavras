@@ -12,16 +12,15 @@ function VerbCatalogTab() {
 	'Pretérito Imperfeito do Indicativo',
 	'Pretérito Mais-Que-Perfeito do Indicativo',
 	'Futuro do Indicativo',
-	'Condicional',
-	'Presente do Subjuntivo',
-	'Pretérito Imperfeito do Subjuntivo',
-	'Futuro do Subjuntivo',
-	'Infinitivo Impessoal',
+	'Presente do Conjuntivo',
+	'Pretérito Imperfeito do Conjuntivo',
+	'Futuro do Conjuntivo',
 	'Infinitivo Pessoal',
-	'Particípio Passado',
+	'Condicional',
 	'Imperativo Afirmativo',
 	'Imperativo Negativo'
   ];
+
 
   const persons = ['eu', 'tu', 'ele', 'nós', 'vós', 'eles'];
 
@@ -136,25 +135,26 @@ function VerbCatalogTab() {
       {selectedVerb && (
         <div style={{ border: '1px solid #e0e0e0', padding: '15px', borderRadius: '6px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '24px', flexWrap: 'wrap', marginBottom: '16px' }}>
-			  <div>
+			<div>
 				<span style={{ fontWeight: 'bold' }}>Verbo: </span>
 				<span style={{ color: '#0070f3', fontWeight: 'bold' }}>{selectedVerb?.infinitive}</span>
-			  </div>
-
-			  <div>
+			</div>
+			
+			<div>
+				<span style={{ fontWeight: 'bold' }}>Infinitivo Impessoal: </span>
+				<span style={{ color: '#374151' }}>{selectedVerb?.impersonal_infinitive || selectedVerb?.infinitive || '—'}</span>
+			</div>
+			
+			<div>
 				<span style={{ fontWeight: 'bold' }}>Gerúndio: </span>
 				<span style={{ color: '#374151' }}>{selectedVerb?.gerund || '—'}</span>
-			  </div>
-
-			  <div>
-				<span style={{ fontWeight: 'bold' }}>Particípio: </span>
-				<span style={{ color: '#374151' }}>
-				  {selectedVerb?.past_participle_regular}
-				  {selectedVerb?.past_participle_irregular ? ` / ${selectedVerb.past_participle_irregular}` : ''}
-				  {!selectedVerb?.past_participle_regular && !selectedVerb?.past_participle_irregular && '—'}
-				</span>
-			  </div>
 			</div>
+			
+			<div>
+				<span style={{ fontWeight: 'bold' }}>Particípio Passado: </span>
+				<span style={{ color: '#374151' }}>{selectedVerb?.past_participle || '—'}</span>
+			</div>
+		  </div>
 			
           {/* Seletor do Tempo Verbal */}
           <div style={{ marginBottom: '15px' }}>
