@@ -68,7 +68,24 @@ function App() {
   const [newStudentName, setNewStudentName] = useState("");
   const [newStudentPin, setNewStudentPin] = useState("");
   const [newStudentGrade, setNewStudentGrade] = useState("1");
+  const handleDeleteStudent = async (studentId) => {
+  if (!window.confirm("Tem a certeza que deseja remover este aluno?")) return;
 
+	try {
+		const { error } = await supabase
+		.from('students')
+		.delete()
+		.eq('id', studentId);
+	
+		if (error) throw error;
+	
+		// Atualiza o estado local removendo o aluno
+		setStudents(prev => prev.filter(s => s.id !== studentId));
+	} catch (err) {
+		console.error("Erro ao remover aluno:", err);
+		alert("Erro ao remover o aluno.");
+	}
+  };	
   const [newStudentPlnnLevel, setNewStudentPlnnLevel] = React.useState("A1");
   const [dashboardTab, setDashboardTab] = useState("alunos");
   const [allWords, setAllWords] = useState([]);
