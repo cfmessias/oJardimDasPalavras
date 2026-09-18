@@ -1,6 +1,4 @@
 // app.js - Fluxo principal, Estado Global e Inicialização (Com Suporte PLNN A1-B2)
-import { AuthView } from './src/views/AuthView.jsx';
-
 const { useState, useEffect } = React;
 
 function App() {
