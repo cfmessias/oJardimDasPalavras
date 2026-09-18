@@ -26,7 +26,7 @@ function App() {
   const [selectedGrade, setSelectedGrade] = useState(1); 
   const [newStudentPlnmLevel, setNewStudentPlnmLevel] = useState("A1"); // Alterado para PLNM
   const [words, setWords] = useState([]);
-  const [plnmExercises, setPlnmExercises] = useState([]); // Alterado para PLNM
+  const [plnnExercises, setPlnnExercises] = useState([]); // Alterado para PLNM
   const [progress, setProgress] = useState({});
   const [currentWord, setCurrentWord] = useState(null);
   const [selectedTheme, setSelectedTheme] = useState(null);
