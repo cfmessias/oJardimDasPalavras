@@ -172,22 +172,29 @@ function VerbCatalogTab() {
 
           {/* Formulário das 6 Pessoas Gramaticais */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '15px' }}>
-			{persons.map(p => {
-				// Mapeamento dinâmico apenas da label visual
-				const displayLabel = p === 'ele' ? 'ele/ela' : p === 'eles' ? 'eles/elas' : p;
-			
+			  {persons.map(p => {
+				// Normaliza para minúsculas e remove espaços extras para comparar com segurança
+				const normalizedKey = (p || '').toString().toLowerCase().trim();
+
+				let displayLabel = p;
+				if (normalizedKey === 'ele' || normalizedKey === 'ele/ela') {
+				  displayLabel = 'ele/ela';
+				} else if (normalizedKey === 'eles' || normalizedKey === 'eles/elas') {
+				  displayLabel = 'eles/elas';
+				}
+
 				return (
-				<div key={p} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+				  <div key={p} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
 					<span style={{ width: '70px', fontWeight: 'bold', textAlign: 'right' }}>{displayLabel}:</span>
 					<input
-					type="text"
-					value={editingForms[p] || ''}
-					onChange={(e) => setEditingForms({ ...editingForms, [p]: e.target.value })}
-					style={{ flex: 1, padding: '6px', borderRadius: '4px', border: '1px solid #ccc' }}
+					  type="text"
+					  value={editingForms[p] || ''}
+					  onChange={(e) => setEditingForms({ ...editingForms, [p]: e.target.value })}
+					  style={{ flex: 1, padding: '6px', borderRadius: '4px', border: '1px solid #ccc' }}
 					/>
-				</div>
+				  </div>
 				);
-			})}
+			  })}
 		  </div>
 
           <button
