@@ -156,7 +156,6 @@ function App() {
     setNewStudentPlnnLevel("A1");
   };
   
-  // SUSTITUIR a função handleCreateStudent por esta:
   const handleStudentSubmit = async (e) => {
     e.preventDefault();
     if (!teacher) return;
@@ -271,10 +270,11 @@ const handleWordSubmit = async (e) => {
   };
 
   const clearPhraseForm = () => {
-    setEditingPhraseId(null);
-    setPhraseText('');
-    setPhraseTargetWord('');
-    setPhraseType('leitura');
+	setPhraseText('');
+	setPhraseTargetWord('');
+	setPhraseType('leitura');
+	setPhraseCategory('Verbo');
+	setEditingPhraseId(null);
   };
 
   const startEditPhrase = (p) => {
@@ -285,34 +285,49 @@ const handleWordSubmit = async (e) => {
   };
 
   const handlePhraseSubmit = async (e) => {
-    e.preventDefault();
-    const payload = {
-      phrase_text: phraseText.trim(),
-      target_word: phraseTargetWord.trim(),
-      type: phraseType,
-      grade: Number(selectedGrade),
-      plnn_level: selectedPlnnLevel || 'A1',
-    };
-    if (!payload.phrase_text) return;
-
-    setSavingPhrase(true);
-    try {
-      if (editingPhraseId) {
-        const { error } = await supabase.from('phrases').update(payload).eq('id', editingPhraseId);
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.from('phrases').insert([payload]);
-        if (error) throw error;
-      }
-      clearPhraseForm();
-      const { data } = await supabase.from('phrases').select('*').order('id');
-      if (data) setPhrases(data);
-    } catch (err) {
-      alert("Erro ao guardar frase: " + err.message);
-    } finally {
-      setSavingPhrase(false);
-    }
-  };
+	e.preventDefault();
+	
+	const payload = {
+		teacher_id: teacher?.id || null,
+		category: phraseCategory,                 // Categoria ("Verbo", "Classe", "Pontuação", etc.)
+		base_word: phraseText.trim(),             // Texto/Frase base
+		target_word: phraseTargetWord.trim(),     // Palavra-alvo / resposta esperada
+		feature_type: phraseType,                 // Tipo de exercício (leitura, lacuna, ordenacao)
+		grade: Number(selectedGrade),             // Ano escolar
+		plnn_level: selectedPlnnLevel || 'A1'     // Nível PLNM
+	};
+	
+	if (!payload.base_word) return;
+	
+	setSavingPhrase(true);
+	try {
+		if (editingPhraseId) {
+		const { error } = await supabase
+			.from('grammar_parameters')
+			.update(payload)
+			.eq('id', editingPhraseId);
+		if (error) throw error;
+		} else {
+		const { error } = await supabase
+			.from('grammar_parameters')
+			.insert([payload]);
+		if (error) throw error;
+		}
+	
+		clearPhraseForm();
+	
+		const { data } = await supabase
+		.from('grammar_parameters')
+		.select('*')
+		.order('id');
+		
+		if (data) setPhrases(data);
+	} catch (err) {
+		alert("Erro ao guardar frase: " + err.message);
+	} finally {
+		setSavingPhrase(false);
+	}
+};
 
   const handleDeletePhrase = async (id) => {
     if (!confirm("Remover esta frase?")) return;
@@ -575,7 +590,7 @@ const handleWordSubmit = async (e) => {
   );
 }
   // 4. ECRÃ: Visão do Aluno / Jogo Pedagógico PLNN
-  // 4. ECRÃ: Visão do Aluno / Jogo Pedagógico PLNN
+  
 if (currentView === "game") {
   return (
     <StudentGameView 

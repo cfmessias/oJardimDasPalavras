@@ -422,17 +422,20 @@
                   </div>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#4b5563' }}>Tipo de Exercício</label>
-                    <select 
-                      className="input" 
-                      value={phraseType} 
-                      onChange={(e) => setPhraseType(e.target.value)}
-                    >
-                      <option value="leitura">Leitura / Compreensão</option>
-                      <option value="lacuna">Preenchimento de Lacuna</option>
-                      <option value="ordenacao">Ordenação de Frase</option>
-                    </select>
-                  </div>
+					<label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#4b5563' }}>Categoria Gramatical</label>
+					<select 
+						className="input" 
+						value={phraseCategory} 
+						onChange={(e) => setPhraseCategory(e.target.value)}
+						required
+					>
+						<option value="Verbo">Verbo</option>
+						<option value="Classe">Classe</option>
+						<option value="Pontuação">Pontuação</option>
+						<option value="Nome">Nome / Substantivo</option>
+						<option value="Adjetivo">Adjetivo</option>
+					</select>
+					</div>
                 </div>
 
                 <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
