@@ -83,7 +83,8 @@
     // Resolve componentes de Verbos globais se não forem passados por props
     const ActualVerbsTab = VerbsTab || window.VerbsTab || (() => <div>Componente VerbsTab não encontrado.</div>);
     const ActualVerbCatalogTab = VerbCatalogTab || window.VerbCatalogTab || (() => <div>Componente VerbCatalogTab não encontrado.</div>);
-
+	const [phraseCategory, setPhraseCategory] = useState('Verbo');
+	
     return (
       <div className="container">
         <div className="card">
@@ -421,21 +422,56 @@
                     />
                   </div>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-					<label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#4b5563' }}>Categoria Gramatical</label>
-					<select 
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+					{/* Categoria Gramatical */}
+					<div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+						<label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#4b5563' }}>
+						Categoria
+						</label>
+						<select 
 						className="input" 
 						value={phraseCategory} 
 						onChange={(e) => setPhraseCategory(e.target.value)}
 						required
-					>
+						>
 						<option value="Verbo">Verbo</option>
 						<option value="Classe">Classe</option>
 						<option value="Pontuação">Pontuação</option>
 						<option value="Nome">Nome / Substantivo</option>
 						<option value="Adjetivo">Adjetivo</option>
-					</select>
+						</select>
 					</div>
+					
+					{/* Palavra-Alvo / Lacuna */}
+					<div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+						<label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#4b5563' }}>
+						Palavra-Alvo (opcional)
+						</label>
+						<input
+						type="text"
+						className="input"
+						placeholder="Ex: correu"
+						value={phraseTargetWord}
+						onChange={(e) => setPhraseTargetWord(e.target.value)}
+						/>
+					</div>
+					
+					{/* Tipo de Exercício */}
+					<div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+						<label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#4b5563' }}>
+						Tipo de Exercício
+						</label>
+						<select 
+						className="input" 
+						value={phraseType} 
+						onChange={(e) => setPhraseType(e.target.value)}
+						>
+						<option value="leitura">Leitura / Compreensão</option>
+						<option value="lacuna">Preenchimento de Lacuna</option>
+						<option value="ordenacao">Ordenação de Frase</option>
+						</select>
+					</div>
+				  </div>
                 </div>
 
                 <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>

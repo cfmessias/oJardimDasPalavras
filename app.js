@@ -273,9 +273,17 @@ const handleWordSubmit = async (e) => {
 	setPhraseText('');
 	setPhraseTargetWord('');
 	setPhraseType('leitura');
-	setPhraseCategory('Verbo');
+	setPhraseCategory('Verbo'); // Repõe o valor padrão
 	setEditingPhraseId(null);
   };
+
+	const handleEditPhrase = (phrase) => {
+	  setEditingPhraseId(phrase.id);
+	  setPhraseText(phrase.base_word || '');
+	  setPhraseTargetWord(phrase.target_word || '');
+	  setPhraseType(phrase.feature_type || 'leitura');
+	  setPhraseCategory(phrase.category || 'Verbo'); // Carrega a categoria existente
+	};
 
   const startEditPhrase = (p) => {
     setEditingPhraseId(p.id);
