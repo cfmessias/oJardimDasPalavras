@@ -270,19 +270,19 @@ const handleWordSubmit = async (e) => {
   };
 
   const clearPhraseForm = () => {
-	setPhraseText('');
-	setPhraseTargetWord('');
-	setPhraseType('leitura');
-	setPhraseCategory('Verbo'); // Repõe o valor padrão
-	setEditingPhraseId(null);
-  };
+	  setPhraseText('');
+	  setPhraseTargetWord('');
+	  setPhraseType('leitura');
+	  setPhraseCategory('Verbo'); // Reseta a categoria
+	  setEditingPhraseId(null);
+	};
 
-	const handleEditPhrase = (phrase) => {
+  const handleEditPhrase = (phrase) => {
 	  setEditingPhraseId(phrase.id);
 	  setPhraseText(phrase.base_word || '');
 	  setPhraseTargetWord(phrase.target_word || '');
 	  setPhraseType(phrase.feature_type || 'leitura');
-	  setPhraseCategory(phrase.category || 'Verbo'); // Carrega a categoria existente
+	  setPhraseCategory(phrase.category || 'Verbo'); // Preenche a categoria
 	};
 
   const startEditPhrase = (p) => {

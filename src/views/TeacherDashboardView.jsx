@@ -1,4 +1,7 @@
 (function () {
+  // Garante o acesso ao useState do React global
+  const { useState } = React;
+
   function TeacherDashboardView({
     teacher,
     handleLogout,
@@ -55,6 +58,8 @@
     setPhraseTargetWord,
     phraseType,
     setPhraseType,
+    phraseCategory,        // Recebido via props (se gerido no pai)
+    setPhraseCategory,     // Recebido via props (se gerido no pai)
     savingPhrase,
     clearPhraseForm,
     phrases = [],
@@ -83,8 +88,11 @@
     // Resolve componentes de Verbos globais se não forem passados por props
     const ActualVerbsTab = VerbsTab || window.VerbsTab || (() => <div>Componente VerbsTab não encontrado.</div>);
     const ActualVerbCatalogTab = VerbCatalogTab || window.VerbCatalogTab || (() => <div>Componente VerbCatalogTab não encontrado.</div>);
-	const [phraseCategory, setPhraseCategory] = useState('Verbo');
-	
+
+    // Se phraseCategory não vier das props do pai, instancia localmente com fallback
+    const [localPhraseCategory, setLocalPhraseCategory] = useState('Verbo');
+    const currentCategory = phraseCategory !== undefined ? phraseCategory : localPhraseCategory;
+    const changeCategory = setPhraseCategory || setLocalPhraseCategory;	
     return (
       <div className="container">
         <div className="card">
