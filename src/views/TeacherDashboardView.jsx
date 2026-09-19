@@ -462,15 +462,15 @@
 				</div>
 
                 <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
-                  <button type="submit" className="btn btn-primary" disabled={savingPhrase}>
-                    {editingPhraseId ? "Guardar alterações" : "Adicionar frase"}
-                  </button>
-                  {editingPhraseId && (
-                    <button type="button" className="btn btn-outline" onClick={clearPhraseForm}>
-                      Cancelar edição
-                    </button>
-                  )}
-                </div>
+					<button type="submit" className="btn btn-primary" disabled={savingPhrase}>
+					{savingPhrase ? "A guardar..." : (editingPhraseId ? "Guardar alterações" : "Adicionar frase")}
+					</button>
+					{editingPhraseId && (
+					<button type="button" className="btn btn-outline" onClick={clearPhraseForm}>
+						Cancelar edição
+					</button>
+					)}
+				</div>
               </form>
 
               <hr style={{ margin: '24px 0' }} />
