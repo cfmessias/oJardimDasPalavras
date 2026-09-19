@@ -431,6 +431,21 @@
 							<option value="Adjetivo">Adjetivo</option>
 							</select>
 						</div>
+						{/* Tipo de Exercício */}
+						<div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+							<label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#4b5563' }}>
+							Tipo de Exercício
+							</label>
+							<select 
+							className="input" 
+							value={phraseType} 
+							onChange={(e) => setPhraseType(e.target.value)}
+							>
+							<option value="leitura">Leitura / Compreensão</option>
+							<option value="lacuna">Preenchimento de Lacuna</option>
+							<option value="ordenacao">Ordenação de Frase</option>
+							</select>
+						</div>	
 					</div>
 				</div>
 				
@@ -448,22 +463,6 @@
 						onChange={(e) => setPhraseTargetWord(e.target.value)}
 						/>
 					</div>
-					
-					{/* Tipo de Exercício */}
-					<div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-						<label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#4b5563' }}>
-						Tipo de Exercício
-						</label>
-						<select 
-						className="input" 
-						value={phraseType} 
-						onChange={(e) => setPhraseType(e.target.value)}
-						>
-						<option value="leitura">Leitura / Compreensão</option>
-						<option value="lacuna">Preenchimento de Lacuna</option>
-						<option value="ordenacao">Ordenação de Frase</option>
-						</select>
-					</div>		
                 </div>
 
                 <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
