@@ -411,17 +411,7 @@
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-						<label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#4b5563' }}>Palavra-Alvo / Lacuna (opcional)</label>
-						<input
-						  type="text"
-						  className="input"
-						  placeholder="Ex: correu"
-						  value={phraseTargetWord}
-						  onChange={(e) => setPhraseTargetWord(e.target.value)}
-						/>
-					</div>
-
+                    
 					<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
 						{/* Categoria Gramatical */}
 						<div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
