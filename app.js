@@ -48,7 +48,7 @@ function App() {
   const [phraseTargetWord, setPhraseTargetWord] = React.useState('');
   const [phraseType, setPhraseType] = React.useState('leitura');
   const [savingPhrase, setSavingPhrase] = React.useState(false);
-  
+  const [phraseCategory, setPhraseCategory] = useState('Verbo');
   // Estados para Verbos
   const [verbs, setVerbs] = React.useState([]);
   
@@ -203,38 +203,38 @@ function App() {
   };
   
   const clearWordForm = () => {
-  setEditingWordId(null);
-  setWordText("");
-  setWordGrade("1");
-  setWordPlnnLevel("A1");
-  setWordEmoji("");
-  setWordHint("");
-  setWordBlankBefore("");
-  setWordBlankAfter("");
-};
+	  setEditingWordId(null);
+	  setWordText("");
+	  setWordGrade("1");
+	  setWordPlnnLevel("A1");
+	  setWordEmoji("");
+	  setWordHint("");
+	  setWordBlankBefore("");
+	  setWordBlankAfter("");
+	};
 
-const startEditWord = (w) => {
-  setEditingWordId(w.id);
-  setWordText(w.word);
-  setWordGrade(String(w.grade));
-  setWordPlnnLevel(w.plnn_level || "A1");
-  setWordEmoji(w.emoji || "");
-  setWordHint(w.hint || "");
-  setWordBlankBefore(w.blank_before || "");
-  setWordBlankAfter(w.blank_after || "");
-};
+	const startEditWord = (w) => {
+	  setEditingWordId(w.id);
+	  setWordText(w.word);
+	  setWordGrade(String(w.grade));
+	  setWordPlnnLevel(w.plnn_level || "A1");
+	  setWordEmoji(w.emoji || "");
+	  setWordHint(w.hint || "");
+	  setWordBlankBefore(w.blank_before || "");
+	  setWordBlankAfter(w.blank_after || "");
+	};
 
-const handleWordSubmit = async (e) => {
-  e.preventDefault();
-  const payload = {
-    word: wordText.trim(),
-    grade: Number(wordGrade),
-    plnn_level: wordPlnnLevel,
-    emoji: wordEmoji.trim(),
-    hint: wordHint.trim(),
-    blankBefore: wordBlankBefore,
-    blankAfter: wordBlankAfter,
-  };
+	const handleWordSubmit = async (e) => {
+	  e.preventDefault();
+	  const payload = {
+		word: wordText.trim(),
+		grade: Number(wordGrade),
+		plnn_level: wordPlnnLevel,
+		emoji: wordEmoji.trim(),
+		hint: wordHint.trim(),
+		blankBefore: wordBlankBefore,
+		blankAfter: wordBlankAfter,
+	  };
 
   if (!payload.word || !payload.emoji || !payload.hint) return;
 
@@ -573,6 +573,8 @@ const handleWordSubmit = async (e) => {
       setPhraseTargetWord={setPhraseTargetWord}
       phraseType={phraseType}
       setPhraseType={setPhraseType}
+	  phraseCategory={phraseCategory}          
+	  setPhraseCategory={setPhraseCategory}   
       savingPhrase={savingPhrase}
       clearPhraseForm={clearPhraseForm}
       phrases={phrases}

@@ -88,9 +88,9 @@
     // Resolve componentes de Verbos globais se não forem passados por props
     const ActualVerbsTab = VerbsTab || window.VerbsTab || (() => <div>Componente VerbsTab não encontrado.</div>);
     const ActualVerbCatalogTab = VerbCatalogTab || window.VerbCatalogTab || (() => <div>Componente VerbCatalogTab não encontrado.</div>);
-
+	
     // Se phraseCategory não vier das props do pai, instancia localmente com fallback
-    const [localPhraseCategory, setLocalPhraseCategory] = useState('Verbo');
+    //const [localPhraseCategory, setLocalPhraseCategory] = useState('Verbo');
     const currentCategory = phraseCategory !== undefined ? phraseCategory : localPhraseCategory;
     const changeCategory = setPhraseCategory || setLocalPhraseCategory;	
     return (
