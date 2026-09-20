@@ -153,17 +153,17 @@ function VerbsTab() {
           <label><strong>Tempo Verbal:</strong></label><br />
           <select value={selectedTense} onChange={(e) => setSelectedTense(e.target.value)} style={{ width: '100%', padding: '8px' }}>
             <option value="Presente do Indicativo">Presente do Indicativo</option>
-			<option value="Pretérito Perfeito do Indicativo">Pretérito Perfeito do Indicativo</option>
-			<option value="Pretérito Imperfeito do Indicativo">Pretérito Imperfeito do Indicativo</option>
-			<option value="Pretérito Mais-Que-Perfeito do Indicativo">Pretérito Mais-Que-Perfeito do Indicativo</option>
-			<option value="Futuro do Indicativo">Futuro do Indicativo</option>
-			<option value="Presente do Conjuntivo">Presente do Conjuntivo</option>
-			<option value="Pretérito Imperfeito do Conjuntivo">Pretérito Imperfeito do Conjuntivo</option>
-			<option value="Futuro do Conjuntivo">Futuro do Conjuntivo</option>
-			<option value="Infinitivo Pessoal">Infinitivo Pessoal</option>
-			<option value="Condicional">Condicional</option>
-			<option value="Imperativo Afirmativo">Imperativo Afirmativo</option>
-			<option value="Imperativo Negativo">Imperativo Negativo</option>
+            <option value="Pretérito Perfeito do Indicativo">Pretérito Perfeito do Indicativo</option>
+            <option value="Pretérito Imperfeito do Indicativo">Pretérito Imperfeito do Indicativo</option>
+            <option value="Pretérito Mais-Que-Perfeito do Indicativo">Pretérito Mais-Que-Perfeito do Indicativo</option>
+            <option value="Futuro do Indicativo">Futuro do Indicativo</option>
+            <option value="Presente do Conjuntivo">Presente do Conjuntivo</option>
+            <option value="Pretérito Imperfeito do Conjuntivo">Pretérito Imperfeito do Conjuntivo</option>
+            <option value="Futuro do Conjuntivo">Futuro do Conjuntivo</option>
+            <option value="Infinitivo Pessoal">Infinitivo Pessoal</option>
+            <option value="Condicional">Condicional</option>
+            <option value="Imperativo Afirmativo">Imperativo Afirmativo</option>
+            <option value="Imperativo Negativo">Imperativo Negativo</option>
 
           </select>
         </div>
