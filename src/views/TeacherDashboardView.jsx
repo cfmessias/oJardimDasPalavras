@@ -77,7 +77,8 @@
     const ActualPhrasesTab = PhrasesTab || window.PhrasesTab || (() => <div>Componente PhrasesTab não encontrado.</div>);
     const ActualVerbsTab = VerbsTab || window.VerbsTab || (() => <div>Componente VerbsTab não encontrado.</div>);
     const ActualVerbCatalogTab = VerbCatalogTab || window.VerbCatalogTab || (() => <div>Componente VerbCatalogTab não encontrado.</div>);
-
+    const ActualStudentsTab = props.StudentsTab || window.StudentsTab || (() => <div>Componente StudentsTab não encontrado.</div>);
+    
     return (
       <div className="container">
         <div className="card">
@@ -191,90 +192,7 @@
 
           {/* 1. SEPARADOR: ALUNOS */}
           {dashboardTab === "alunos" && (
-            <React.Fragment>
-              <h3>{editingStudentId ? "Editar Aluno" : `Criar Novo Aluno para ${selectedGrade}.º Ano (${selectedPlnnLevel || 'A1'})`}</h3>
-
-              <form 
-                onSubmit={handleStudentSubmit} 
-                autoComplete="off"
-                style={{ display: 'grid', gap: '12px', gridTemplateColumns: '2fr 1fr auto', alignItems: 'end', marginTop: '12px' }}
-              >
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#4b5563' }}>Nome do Aluno</label>
-                  <input
-                    type="text"
-                    className="input"
-                    placeholder="Ex: Zé Maria"
-                    value={newStudentName}
-                    onChange={(e) => setNewStudentName(e.target.value)}
-                    autoComplete="off"
-                    required
-                  />
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#4b5563' }}>PIN do Aluno</label>
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    className="input"
-                    placeholder="Ex: 1234"
-                    value={newStudentPin}
-                    onChange={(e) => setNewStudentPin(e.target.value)}
-                    autoComplete="new-password"
-                    required
-                  />
-                </div>
-
-                <div style={{ display: 'flex', gap: '6px' }}>
-                  <button type="submit" className="btn btn-primary" style={{ height: '42px' }}>
-                    {editingStudentId ? "Guardar" : "Adicionar"}
-                  </button>
-                  {editingStudentId && (
-                    <button type="button" className="btn btn-outline" style={{ height: '42px' }} onClick={clearStudentForm}>
-                      Cancelar
-                    </button>
-                  )}
-                </div>
-              </form>
-
-              <hr style={{ margin: '24px 0' }} />
-
-              <h3>
-                Alunos Registados ({
-                  students.filter(s => Number(s.grade) === Number(selectedGrade) && (s.plnn_level || 'A1') === selectedPlnnLevel).length
-                })
-              </h3>
-
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '12px', marginTop: '16px' }}>
-                {students
-                  .filter(s => Number(s.grade) === Number(selectedGrade) && (s.plnn_level || 'A1') === selectedPlnnLevel)
-                  .map((student) => (
-                    <div key={student.id} style={{ border: '1px solid #ddd', padding: '12px', borderRadius: '8px', backgroundColor: '#fafafa' }}>
-                      <h4 style={{ margin: '0 0 4px 0', color: '#111827' }}>{student.name}</h4>
-                      <p style={{ margin: 0, color: '#6b7280', fontSize: '0.85rem' }}>
-                        {student.grade}.º Ano • Nível {student.plnn_level || 'A1'}
-                      </p>
-                      <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
-                        <button type="button" className="link-btn" onClick={() => startEditStudent(student)}>
-                          Editar
-                        </button>
-                        <button type="button" className="link-btn" onClick={() => handleDeleteStudent(student.id)}>
-                          Remover
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-              </div>
-
-              <button 
-                className="btn btn-outline" 
-                style={{ marginTop: '24px' }} 
-                onClick={() => setCurrentView("student_select")}
-              >
-                👁️ Ver Visão do Aluno
-              </button>
-            </React.Fragment>
+            <ActualStudentsTab {...props} />
           )}
 
           {/* 2. SEPARADOR: VOCABULÁRIO (PALAVRAS) */}
