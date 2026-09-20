@@ -65,6 +65,7 @@
     phrases = [],
     startEditPhrase,
     handleDeletePhrase,
+	fetchPhrases,
     // Componentes externos de Verbos
     VerbsTab,
     VerbCatalogTab,

@@ -285,12 +285,17 @@ function App() {
 	  setPhraseCategory(phrase.category || 'Verbo'); // Preenche a categoria
 	};
 
-  const startEditPhrase = (p) => {
-    setEditingPhraseId(p.id);
-    setPhraseText(p.phrase_text || '');
-    setPhraseTargetWord(p.target_word || '');
-    setPhraseType(p.type || 'leitura');
-  };
+  const startEditPhrase = (phrase) => {
+	  setEditingPhraseId(phrase.id);
+	  // Usa o campo novo com fallback para o antigo, se existir
+	  setPhraseText(phrase.base_word || phrase.phrase_text || '');
+	  setPhraseTargetWord(phrase.target_word || phrase.phrase_target_word || '');
+	  setPhraseType(phrase.feature_type || phrase.type || 'leitura');
+	  setPhraseCategory(phrase.category || 'Verbo');
+	  
+	  if (phrase.grade) setSelectedGrade(phrase.grade);
+	  if (phrase.plnn_level) setSelectedPlnnLevel(phrase.plnn_level);
+	};
 
   const handlePhraseSubmit = async (e) => {
 	e.preventDefault();
@@ -347,6 +352,17 @@ function App() {
     setPhrases(prev => prev.filter(p => p.id !== id));
   };
 
+  const fetchPhrases = async () => {
+    const { data, error } = await supabase
+      .from('grammar_parameters')
+      .select('*')
+      .order('id', { ascending: true });
+  
+    if (!error && data) {
+      setPhrases(data);
+    }
+  };
+  
   // ---------- Verbos ----------
   const openVerbsTab = () => {
   setDashboardTab("verbos");
