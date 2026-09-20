@@ -265,8 +265,14 @@ function App() {
   // ---------- Frases ----------
   const openPhrasesTab = async () => {
     setDashboardTab("frases");
-    const { data } = await supabase.from('phrases').select('*').order('id');
-    if (data) setPhrases(data);
+    const { data, error } = await supabase
+      .from('grammar_parameters')
+      .select('*')
+      .order('id', { ascending: true });
+  
+    if (!error && data) {
+      setPhrases(data);
+    }
   };
 
   const clearPhraseForm = () => {
