@@ -1,6 +1,6 @@
 (function () {
-  // Garante o acesso ao useState do React global
-  const { useState } = React;
+  // 1. CORREÇÃO: Importar também useEffect do React
+  const { useState, useEffect } = React;
 
   function TeacherDashboardView({
     teacher,
@@ -58,14 +58,14 @@
     setPhraseTargetWord,
     phraseType,
     setPhraseType,
-    phraseCategory,        // Recebido via props (se gerido no pai)
-    setPhraseCategory,     // Recebido via props (se gerido no pai)
+    phraseCategory,        // Recebido via props
+    setPhraseCategory,     // Recebido via props
     savingPhrase,
     clearPhraseForm,
     phrases = [],
     startEditPhrase,
     handleDeletePhrase,
-	fetchPhrases,
+    fetchPhrases,
     // Componentes externos de Verbos
     VerbsTab,
     VerbCatalogTab,
@@ -89,30 +89,31 @@
     // Resolve componentes de Verbos globais se não forem passados por props
     const ActualVerbsTab = VerbsTab || window.VerbsTab || (() => <div>Componente VerbsTab não encontrado.</div>);
     const ActualVerbCatalogTab = VerbCatalogTab || window.VerbCatalogTab || (() => <div>Componente VerbCatalogTab não encontrado.</div>);
-	// Filtragem por Ano Escolar (grade) e Nível PLNM (plnn_level)
-	const filteredPhrases = phrases.filter((p) => {
-	  const matchGrade = Number(p.grade) === Number(selectedGrade);
-	  const matchLevel = (p.plnn_level || p.level || 'A1') === selectedPlnnLevel;
-	  return matchGrade && matchLevel;
-	});
-	
-    // Se phraseCategory não vier das props do pai, instancia localmente com fallback
-    //const [localPhraseCategory, setLocalPhraseCategory] = useState('Verbo');
+
+    // 2. CORREÇÃO: Fallback local para phraseCategory seguro contra erros
+    const [localPhraseCategory, setLocalPhraseCategory] = useState('Verbo');
     const currentCategory = phraseCategory !== undefined ? phraseCategory : localPhraseCategory;
-    const changeCategory = setPhraseCategory || setLocalPhraseCategory;	
-	
-	const [currentPage, setCurrentPage] = useState(1);
-	const ITEMS_PER_PAGE = 5; // Define quantas frases queres por página
+    const changeCategory = setPhraseCategory || setLocalPhraseCategory;
 
-	// Sempre que o ano ou nível mudar, volta à página 1
-	useEffect(() => {
-	  setCurrentPage(1);
-	}, [selectedGrade, selectedPlnnLevel]);
+    // Filtragem de frases por Ano Escolar (grade) e Nível PLNM (plnn_level)
+    const filteredPhrases = phrases.filter((p) => {
+      const matchGrade = Number(p.grade) === Number(selectedGrade);
+      const matchLevel = (p.plnn_level || p.level || 'A1') === selectedPlnnLevel;
+      return matchGrade && matchLevel;
+    });
 
-	// Cálculo dos índices de paginação
-	const totalPages = Math.ceil(filteredPhrases.length / ITEMS_PER_PAGE);
-	const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-	const paginatedPhrases = filteredPhrases.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+    // Estado e Cálculos de Paginação
+    const [currentPage, setCurrentPage] = useState(1);
+    const ITEMS_PER_PAGE = 5;
+
+    // Reseta a página quando os filtros mudam
+    useEffect(() => {
+      setCurrentPage(1);
+    }, [selectedGrade, selectedPlnnLevel]);
+
+    const totalPages = Math.ceil(filteredPhrases.length / ITEMS_PER_PAGE) || 1;
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const paginatedPhrases = filteredPhrases.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
     return (
       <div className="container">
@@ -172,7 +173,7 @@
             </button>
           </div>
 
-          {/* BARRA DE FILTROS GLOBAIS (Oculta no Catálogo de Verbos) */}
+          {/* BARRA DE FILTROS GLOBAIS */}
           {dashboardTab !== "catalogo_verbos" && (
             <div style={{ backgroundColor: '#f9fafb', padding: '16px', borderRadius: '12px', border: '1px solid #e5e7eb', marginBottom: '24px' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -304,12 +305,12 @@
               </div>
 
               <button 
-				className="btn btn-outline" 
-				style={{ marginTop: '24px' }} 
-				onClick={() => setCurrentView("student_select")}
-				>
-				👁️ Ver Visão do Aluno
-			  </button>
+                className="btn btn-outline" 
+                style={{ marginTop: '24px' }} 
+                onClick={() => setCurrentView("student_select")}
+              >
+                👁️ Ver Visão do Aluno
+              </button>
             </React.Fragment>
           )}
 
@@ -440,173 +441,173 @@
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
-				  {/* Categoria Gramatical */}
-				  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-					<label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#4b5563' }}>
-					  Categoria
-					</label>
-					<select 
-					  className="input" 
-					  value={phraseCategory} 
-					  onChange={(e) => setPhraseCategory(e.target.value)}
-					  required
-					>
-					  <option value="Verbo">Verbo</option>
-					  <option value="Classe">Classe</option>
-					  <option value="Pontuação">Pontuação</option>
-					  <option value="Nome">Nome / Substantivo</option>
-					  <option value="Adjetivo">Adjetivo</option>
-					</select>
-				  </div>
+                  {/* 3. CORREÇÃO: Utilizar a variável tratada com fallback */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#4b5563' }}>
+                      Categoria
+                    </label>
+                    <select 
+                      className="input" 
+                      value={currentCategory} 
+                      onChange={(e) => changeCategory(e.target.value)}
+                      required
+                    >
+                      <option value="Verbo">Verbo</option>
+                      <option value="Classe">Classe</option>
+                      <option value="Pontuação">Pontuação</option>
+                      <option value="Nome">Nome / Substantivo</option>
+                      <option value="Adjetivo">Adjetivo</option>
+                    </select>
+                  </div>
 
-				  {/* Palavra-Alvo / Lacuna */}
-				  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-					<label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#4b5563' }}>
-					  Palavra-Alvo (opcional)
-					</label>
-					<input
-					  type="text"
-					  className="input"
-					  placeholder="Ex: correu"
-					  value={phraseTargetWord}
-					  onChange={(e) => setPhraseTargetWord(e.target.value)}
-					/>
-				  </div>
+                  {/* Palavra-Alvo / Lacuna */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#4b5563' }}>
+                      Palavra-Alvo (opcional)
+                    </label>
+                    <input
+                      type="text"
+                      className="input"
+                      placeholder="Ex: correu"
+                      value={phraseTargetWord}
+                      onChange={(e) => setPhraseTargetWord(e.target.value)}
+                    />
+                  </div>
 
-				  {/* Tipo de Exercício */}
-				  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-					<label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#4b5563' }}>
-					  Tipo de Exercício
-					</label>
-					<select 
-					  className="input" 
-					  value={phraseType} 
-					  onChange={(e) => setPhraseType(e.target.value)}
-					>
-					  <option value="leitura">Leitura / Compreensão</option>
-					  <option value="lacuna">Preenchimento de Lacuna</option>
-					  <option value="ordenacao">Ordenação de Frase</option>
-					</select>
-				  </div>
-				</div>
+                  {/* Tipo de Exercício */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#4b5563' }}>
+                      Tipo de Exercício
+                    </label>
+                    <select 
+                      className="input" 
+                      value={phraseType} 
+                      onChange={(e) => setPhraseType(e.target.value)}
+                    >
+                      <option value="leitura">Leitura / Compreensão</option>
+                      <option value="lacuna">Preenchimento de Lacuna</option>
+                      <option value="ordenacao">Ordenação de Frase</option>
+                    </select>
+                  </div>
+                </div>
 
                 <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
-					<button type="submit" className="btn btn-primary" disabled={savingPhrase}>
-					{savingPhrase ? "A guardar..." : (editingPhraseId ? "Guardar alterações" : "Adicionar frase")}
-					</button>
-					{editingPhraseId && (
-					<button type="button" className="btn btn-outline" onClick={clearPhraseForm}>
-						Cancelar edição
-					</button>
-					)}
-				</div>
+                  <button type="submit" className="btn btn-primary" disabled={savingPhrase}>
+                    {savingPhrase ? "A guardar..." : (editingPhraseId ? "Guardar alterações" : "Adicionar frase")}
+                  </button>
+                  {editingPhraseId && (
+                    <button type="button" className="btn btn-outline" onClick={clearPhraseForm}>
+                      Cancelar edição
+                    </button>
+                  )}
+                </div>
               </form>
 
               <hr style={{ margin: '24px 0' }} />
 
               <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold', color: '#1f2937', marginTop: '24px' }}>
-				  Frases Registadas ({filteredPhrases.length})
-				</h3>
+                Frases Registadas ({filteredPhrases.length})
+              </h3>
 
-				{filteredPhrases.length > 0 ? (
-				  <>
-					<div className="phrases-list" style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '16px' }}>
-					  {paginatedPhrases.map((p) => (
-						<div 
-						  key={p.id} 
-						  className="card" 
-						  style={{ 
-							display: 'flex', 
-							justifyContent: 'space-between', 
-							alignItems: 'center', 
-							padding: '12px 16px', 
-							backgroundColor: '#f9fafb',
-							borderRadius: '8px',
-							border: '1px solid #e5e7eb'
-						  }}
-						>
-						  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-							<div style={{ fontWeight: 'bold', fontSize: '1rem', color: '#1f2937' }}>
-							  {p.base_word || p.phrase_text}
-							</div>
-							
-							<div style={{ fontSize: '0.85rem', color: '#6b7280', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-							  <span>Categoria: <strong>{p.category || 'Verbo'}</strong></span>
-							  <span>Tipo: <strong>{p.feature_type || p.type || 'leitura'}</strong></span>
-							  {(p.target_word || p.phrase_target_word) && (
-								<span style={{ color: '#059669' }}>
-								  Palavra-alvo: <strong>{p.target_word || p.phrase_target_word}</strong>
-								</span>
-							  )}
-							</div>
-						  </div>
+              {filteredPhrases.length > 0 ? (
+                <>
+                  <div className="phrases-list" style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '16px' }}>
+                    {paginatedPhrases.map((p) => (
+                      <div 
+                        key={p.id} 
+                        className="card" 
+                        style={{ 
+                          display: 'flex', 
+                          justify: 'space-between', 
+                          alignItems: 'center', 
+                          padding: '12px 16px', 
+                          backgroundColor: '#f9fafb',
+                          borderRadius: '8px',
+                          border: '1px solid #e5e7eb'
+                        }}
+                      >
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          <div style={{ fontWeight: 'bold', fontSize: '1rem', color: '#1f2937' }}>
+                            {p.base_word || p.phrase_text}
+                          </div>
+                          
+                          <div style={{ fontSize: '0.85rem', color: '#6b7280', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                            <span>Categoria: <strong>{p.category || 'Verbo'}</strong></span>
+                            <span>Tipo: <strong>{p.feature_type || p.type || 'leitura'}</strong></span>
+                            {(p.target_word || p.phrase_target_word) && (
+                              <span style={{ color: '#059669' }}>
+                                Palavra-alvo: <strong>{p.target_word || p.phrase_target_word}</strong>
+                              </span>
+                            )}
+                          </div>
+                        </div>
 
-						  <div style={{ display: 'flex', gap: '8px' }}>
-							<button 
-							  type="button" 
-							  className="btn-link" 
-							  style={{ color: '#f2704e', fontWeight: 'bold', cursor: 'pointer', border: 'none', background: 'none' }} 
-							  onClick={() => startEditPhrase(p)}
-							>
-							  Editar
-							</button>
-							<button 
-							  type="button" 
-							  className="btn-link" 
-							  style={{ color: '#ef4444', fontWeight: 'bold', cursor: 'pointer', border: 'none', background: 'none' }} 
-							  onClick={() => handleDeletePhrase(p.id)}
-							>
-							  Remover
-							</button>
-						  </div>
-						</div>
-					  ))}
-					</div>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button 
+                            type="button" 
+                            className="btn-link" 
+                            style={{ color: '#f2704e', fontWeight: 'bold', cursor: 'pointer', border: 'none', background: 'none' }} 
+                            onClick={() => startEditPhrase(p)}
+                          >
+                            Editar
+                          </button>
+                          <button 
+                            type="button" 
+                            className="btn-link" 
+                            style={{ color: '#ef4444', fontWeight: 'bold', cursor: 'pointer', border: 'none', background: 'none' }} 
+                            onClick={() => handleDeletePhrase(p.id)}
+                          >
+                            Remover
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
 
-					{/* Barra de Paginação */}
-					{totalPages > 1 && (
-					  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px', marginTop: '16px' }}>
-						<button
-						  type="button"
-						  disabled={currentPage === 1}
-						  onClick={() => setCurrentPage((prev) => prev - 1)}
-						  style={{
-							padding: '6px 12px',
-							borderRadius: '4px',
-							border: '1px solid #d1d5db',
-							backgroundColor: currentPage === 1 ? '#f3f4f6' : '#ffffff',
-							cursor: currentPage === 1 ? 'not-allowed' : 'pointer'
-						  }}
-						>
-						  Anterior
-						</button>
+                  {/* Barra de Paginação */}
+                  {totalPages > 1 && (
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px', marginTop: '16px' }}>
+                      <button
+                        type="button"
+                        disabled={currentPage === 1}
+                        onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                        style={{
+                          padding: '6px 12px',
+                          borderRadius: '4px',
+                          border: '1px solid #d1d5db',
+                          backgroundColor: currentPage === 1 ? '#f3f4f6' : '#ffffff',
+                          cursor: currentPage === 1 ? 'not-allowed' : 'pointer'
+                        }}
+                      >
+                        Anterior
+                      </button>
 
-						<span style={{ fontSize: '0.9rem', color: '#374151' }}>
-						  Página <strong>{currentPage}</strong> de <strong>{totalPages}</strong>
-						</span>
+                      <span style={{ fontSize: '0.9rem', color: '#374151' }}>
+                        Página <strong>{currentPage}</strong> de <strong>{totalPages}</strong>
+                      </span>
 
-						<button
-						  type="button"
-						  disabled={currentPage === totalPages}
-						  onClick={() => setCurrentPage((prev) => prev + 1)}
-						  style={{
-							padding: '6px 12px',
-							borderRadius: '4px',
-							border: '1px solid #d1d5db',
-							backgroundColor: currentPage === totalPages ? '#f3f4f6' : '#ffffff',
-							cursor: currentPage === totalPages ? 'not-allowed' : 'pointer'
-						  }}
-						>
-						  Seguinte
-						</button>
-					  </div>
-					)}
-				  </>
-				) : (
-				  <p style={{ color: '#6b7280', marginTop: '16px', fontStyle: 'italic', fontSize: '0.9rem' }}>
-					Nenhuma frase registada para o {selectedGrade}.º Ano ({selectedPlnnLevel}).
-				  </p>
-				)}
+                      <button
+                        type="button"
+                        disabled={currentPage === totalPages}
+                        onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                        style={{
+                          padding: '6px 12px',
+                          borderRadius: '4px',
+                          border: '1px solid #d1d5db',
+                          backgroundColor: currentPage === totalPages ? '#f3f4f6' : '#ffffff',
+                          cursor: currentPage === totalPages ? 'not-allowed' : 'pointer'
+                        }}
+                      >
+                        Seguinte
+                      </button>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <p style={{ color: '#6b7280', marginTop: '16px', fontStyle: 'italic', fontSize: '0.9rem' }}>
+                  Nenhuma frase registada para o {selectedGrade}.º Ano ({selectedPlnnLevel}).
+                </p>
+              )}
             </React.Fragment>
           )}
 
