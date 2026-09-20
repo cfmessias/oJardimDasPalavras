@@ -89,6 +89,12 @@
     // Resolve componentes de Verbos globais se não forem passados por props
     const ActualVerbsTab = VerbsTab || window.VerbsTab || (() => <div>Componente VerbsTab não encontrado.</div>);
     const ActualVerbCatalogTab = VerbCatalogTab || window.VerbCatalogTab || (() => <div>Componente VerbCatalogTab não encontrado.</div>);
+	// Filtragem por Ano Escolar (grade) e Nível PLNM (plnn_level)
+	const filteredPhrases = phrases.filter((p) => {
+	  const matchGrade = Number(p.grade) === Number(selectedGrade);
+	  const matchLevel = (p.plnn_level || p.level || 'A1') === selectedPlnnLevel;
+	  return matchGrade && matchLevel;
+	});
 	
     // Se phraseCategory não vier das props do pai, instancia localmente com fallback
     //const [localPhraseCategory, setLocalPhraseCategory] = useState('Verbo');
@@ -484,58 +490,71 @@
 
               <hr style={{ margin: '24px 0' }} />
 
-              <h3>
-                Frases Registadas ({
-                  phrases.filter(p => Number(p.grade) === Number(selectedGrade) && (p.plnn_level || 'A1') === selectedPlnnLevel).length
-                })
-              </h3>
-
-              <div className="phrases-list" style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '16px' }}>
-				  {phrases.map((p) => (
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold', color: '#1f2937', marginTop: '24px' }}>
+				Frases Registadas ({filteredPhrases.length})
+				</h3>
+				
+				{filteredPhrases.length > 0 ? (
+				<div className="phrases-list" style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '16px' }}>
+					{filteredPhrases.map((p) => (
 					<div 
-					  key={p.id} 
-					  className="card" 
-					  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', backgroundColor: '#f9fafb' }}
+						key={p.id} 
+						className="card" 
+						style={{ 
+						display: 'flex', 
+						justify: 'space-between', 
+						alignItems: 'center', 
+						padding: '12px 16px', 
+						backgroundColor: '#f9fafb',
+						borderRadius: '8px',
+						border: '1px solid #e5e7eb'
+						}}
 					>
-					  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-						{/* Texto da Frase (base_word) */}
+						<div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+						{/* Texto principal da frase (base_word) */}
 						<div style={{ fontWeight: 'bold', fontSize: '1rem', color: '#1f2937' }}>
-						  {p.base_word || p.phrase_text}
+							{p.base_word || p.phrase_text}
 						</div>
 						
 						{/* Metadados: Categoria, Tipo e Palavra-alvo */}
 						<div style={{ fontSize: '0.85rem', color: '#6b7280', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-						  <span>Categoria: <strong>{p.category || 'Geral'}</strong></span>
-						  <span>Tipo: <strong>{p.feature_type || p.type || 'leitura'}</strong></span>
-						  {(p.target_word || p.phrase_target_word) && (
+							<span>Categoria: <strong>{p.category || 'Verbo'}</strong></span>
+							<span>Tipo: <strong>{p.feature_type || p.type || 'leitura'}</strong></span>
+							{(p.target_word || p.phrase_target_word) && (
 							<span style={{ color: '#059669' }}>
-							  Palavra-alvo: <strong>{p.target_word || p.phrase_target_word}</strong>
+								Palavra-alvo: <strong>{p.target_word || p.phrase_target_word}</strong>
 							</span>
-						  )}
+							)}
 						</div>
-					  </div>
-
-					  <div style={{ display: 'flex', gap: '8px' }}>
+						</div>
+				
+						{/* Ações */}
+						<div style={{ display: 'flex', gap: '8px' }}>
 						<button 
-						  type="button" 
-						  className="btn-link" 
-						  style={{ color: '#f2704e', fontWeight: 'bold', cursor: 'pointer', border: 'none', background: 'none' }} 
-						  onClick={() => startEditPhrase(p)}
+							type="button" 
+							className="btn-link" 
+							style={{ color: '#f2704e', fontWeight: 'bold', cursor: 'pointer', border: 'none', background: 'none' }} 
+							onClick={() => startEditPhrase(p)}
 						>
-						  Editar
+							Editar
 						</button>
 						<button 
-						  type="button" 
-						  className="btn-link" 
-						  style={{ color: '#ef4444', fontWeight: 'bold', cursor: 'pointer', border: 'none', background: 'none' }} 
-						  onClick={() => handleDeletePhrase(p.id)}
+							type="button" 
+							className="btn-link" 
+							style={{ color: '#ef4444', fontWeight: 'bold', cursor: 'pointer', border: 'none', background: 'none' }} 
+							onClick={() => handleDeletePhrase(p.id)}
 						>
-						  Remover
+							Remover
 						</button>
-					  </div>
+						</div>
 					</div>
-				  ))}
+					))}
 				</div>
+				) : (
+				<p style={{ color: '#6b7280', marginTop: '16px', fontStyle: 'italic', fontSize: '0.9rem' }}>
+					Nenhuma frase registada para o {selectedGrade}.º Ano ({selectedPlnnLevel}).
+				</p>
+				)}
             </React.Fragment>
           )}
 
