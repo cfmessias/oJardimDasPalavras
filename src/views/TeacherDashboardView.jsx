@@ -78,7 +78,8 @@
     const ActualVerbsTab = VerbsTab || window.VerbsTab || (() => <div>Componente VerbsTab não encontrado.</div>);
     const ActualVerbCatalogTab = VerbCatalogTab || window.VerbCatalogTab || (() => <div>Componente VerbCatalogTab não encontrado.</div>);
     const ActualStudentsTab = props.StudentsTab || window.StudentsTab || (() => <div>Componente StudentsTab não encontrado.</div>);
-    
+    const ActualVocabularyTab = props.VocabularyTab || window.VocabularyTab || (() => <div>Componente VocabularyTab não encontrado.</div>);
+
     return (
       <div className="container">
         <div className="card">
@@ -197,110 +198,7 @@
 
           {/* 2. SEPARADOR: VOCABULÁRIO (PALAVRAS) */}
           {dashboardTab === "palavras" && (
-            <React.Fragment>
-              <h3>{editingWordId ? "Editar Palavra" : `Adicionar Palavra para ${selectedGrade}.º Ano (${selectedPlnnLevel || 'A1'})`}</h3>
-
-              <form
-                onSubmit={handleWordSubmit}
-                autoComplete="off"
-                style={{ display: 'grid', gap: '12px', gridTemplateColumns: '1fr 1fr 2fr', marginTop: '12px' }}
-              >
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#4b5563' }}>Palavra</label>
-                  <input
-                    type="text"
-                    className="input"
-                    placeholder="Ex: gato"
-                    value={wordText}
-                    onChange={(e) => setWordText(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#4b5563' }}>Emoji</label>
-                  <input
-                    type="text"
-                    className="input"
-                    placeholder="Ex: 🐱"
-                    value={wordEmoji}
-                    onChange={(e) => setWordEmoji(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#4b5563' }}>Dica / Significado</label>
-                  <input
-                    type="text"
-                    className="input"
-                    placeholder="Ex: Animal doméstico que mia."
-                    value={wordHint}
-                    onChange={(e) => setWordHint(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#4b5563' }}>Início da frase</label>
-                  <input
-                    type="text"
-                    className="input"
-                    placeholder="Ex: O "
-                    value={wordBlankBefore}
-                    onChange={(e) => setWordBlankBefore(e.target.value)}
-                  />
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', gridColumn: 'span 2' }}>
-                  <label style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#4b5563' }}>Fim da frase</label>
-                  <input
-                    type="text"
-                    className="input"
-                    placeholder="Ex: dorme no sofá."
-                    value={wordBlankAfter}
-                    onChange={(e) => setWordBlankAfter(e.target.value)}
-                  />
-                </div>
-
-                <div style={{ gridColumn: '1 / -1', display: 'flex', gap: '10px', marginTop: '8px' }}>
-                  <button type="submit" className="btn btn-primary" disabled={savingWord}>
-                    {editingWordId ? "Guardar alterações" : "Adicionar palavra"}
-                  </button>
-
-                  {editingWordId && (
-                    <button type="button" className="btn btn-outline" onClick={clearWordForm}>
-                      Cancelar edição
-                    </button>
-                  )}
-                </div>
-              </form>
-
-              <hr style={{ margin: '24px 0' }} />
-
-              <h3>
-                Palavras Registadas ({
-                  allWords.filter(w => Number(w.grade) === Number(selectedGrade) && (w.plnn_level || 'A1') === selectedPlnnLevel).length
-                })
-              </h3>
-
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '12px', marginTop: '16px' }}>
-                {allWords
-                  .filter(w => Number(w.grade) === Number(selectedGrade) && (w.plnn_level || 'A1') === selectedPlnnLevel)
-                  .map((w) => (
-                    <div key={w.id} style={{ border: '1px solid #ddd', padding: '12px', borderRadius: '8px', backgroundColor: '#fafafa' }}>
-                      <h4 style={{ margin: '0 0 4px 0', color: '#111827' }}>{w.emoji} {w.word}</h4>
-                      <p style={{ margin: 0, color: '#6b7280', fontSize: '0.85rem' }}>
-                        {w.grade}.º Ano • Nível {w.plnn_level || 'A1'}
-                      </p>
-                      <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
-                        <button type="button" className="link-btn" onClick={() => startEditWord(w)}>Editar</button>
-                        <button type="button" className="link-btn" onClick={() => handleDeleteWord(w.id)}>Remover</button>
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            </React.Fragment>
+            <ActualVocabularyTab {...props} />
           )}
 
           {/* 3. SEPARADOR: FRASES (Modularizado no componente externo PhrasesTab) */}
