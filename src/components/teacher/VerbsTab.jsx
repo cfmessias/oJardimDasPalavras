@@ -1,17 +1,10 @@
 // src/components/teacher/VerbsTab.jsx
 
-function VerbsTab() {
-  const [selectedGrade, setSelectedGrade] = React.useState('1');
-  const [selectedPlnnLevel, setSelectedPlnnLevel] = React.useState(() => {
-	return localStorage.getItem('verbsTab_selectedPlnnLevel') || '';
-	});
-	
-  const handlePlnnLevelChange = (e) => {
-	const value = e.target.value;
-	setSelectedPlnnLevel(value);
-	localStorage.setItem('verbsTab_selectedPlnnLevel', value);
-  };
-  // No VerbsTab.jsx:
+function VerbsTab(props) {
+  // Ano Escolar e Nível PLNM vêm agora da barra de filtros global do Painel do
+  // Professor (TeacherDashboardView), tal como nos separadores de Gramática,
+  // Vocabulário e Frases — para que a seleção seja consistente em toda a app.
+  const { selectedGrade = 1, selectedPlnnLevel = '' } = props;
 
 	const [selectedTense, setSelectedTense] = React.useState(() => {
 	  return localStorage.getItem('verbsTab_selectedTense') || 'Presente do Indicativo';
@@ -125,45 +118,29 @@ function VerbsTab() {
   return (
     <div style={{ padding: '20px', maxWidth: '900px', margin: '0 auto' }}>
       <h2>Parametrização de Verbos por Ano / Nível / Tempo Verbal</h2>
+      <p style={{ color: '#6b7280', fontSize: '0.9rem', marginTop: '-8px' }}>
+        Ano Escolar: <strong>{selectedGrade}.º Ano</strong> · Nível PLNM: <strong>{selectedPlnnLevel || 'Todos'}</strong>
+        {' '}(definidos na barra de filtros acima)
+      </p>
 
-      {/* 1. Seleção do Ano, Nível PLNM e Tempo Verbal */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1.5fr', gap: '15px', marginBottom: '20px', background: '#f5f5f5', padding: '15px', borderRadius: '8px' }}>
-        <div>
-          <label><strong>Ano Escolar:</strong></label><br />
-          <select value={selectedGrade} onChange={(e) => setSelectedGrade(e.target.value)} style={{ width: '100%', padding: '8px' }}>
-            <option value="1">1.º Ano</option>
-            <option value="2">2.º Ano</option>
-            <option value="3">3.º Ano</option>
-            <option value="4">4.º Ano</option>
-          </select>
-        </div>
-
-        <div>
-          <label><strong>Nível PLNM:</strong></label><br />
-          <select value={selectedPlnnLevel} onChange={(e) => setSelectedPlnnLevel(e.target.value)} style={{ width: '100%', padding: '8px' }}>
-            <option value="">-- Todos --</option>
-            <option value="A1">A1</option>
-            <option value="A2">A2</option>
-            <option value="B1">B1</option>
-			
-          </select>
-        </div>
-
+      {/* 1. Seleção do Tempo Verbal. Ano Escolar e Nível PLNM usam a barra de
+          filtros global do Painel do Professor, tal como os outros separadores. */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr', maxWidth: '320px', gap: '15px', marginBottom: '20px', background: '#f5f5f5', padding: '15px', borderRadius: '8px' }}>
         <div>
           <label><strong>Tempo Verbal:</strong></label><br />
           <select value={selectedTense} onChange={(e) => setSelectedTense(e.target.value)} style={{ width: '100%', padding: '8px' }}>
             <option value="Presente do Indicativo">Presente do Indicativo</option>
-            <option value="Pretérito Perfeito do Indicativo">Pretérito Perfeito do Indicativo</option>
-            <option value="Pretérito Imperfeito do Indicativo">Pretérito Imperfeito do Indicativo</option>
-            <option value="Pretérito Mais-Que-Perfeito do Indicativo">Pretérito Mais-Que-Perfeito do Indicativo</option>
-            <option value="Futuro do Indicativo">Futuro do Indicativo</option>
-            <option value="Presente do Conjuntivo">Presente do Conjuntivo</option>
-            <option value="Pretérito Imperfeito do Conjuntivo">Pretérito Imperfeito do Conjuntivo</option>
-            <option value="Futuro do Conjuntivo">Futuro do Conjuntivo</option>
-            <option value="Infinitivo Pessoal">Infinitivo Pessoal</option>
-            <option value="Condicional">Condicional</option>
-            <option value="Imperativo Afirmativo">Imperativo Afirmativo</option>
-            <option value="Imperativo Negativo">Imperativo Negativo</option>
+			<option value="Pretérito Perfeito do Indicativo">Pretérito Perfeito do Indicativo</option>
+			<option value="Pretérito Imperfeito do Indicativo">Pretérito Imperfeito do Indicativo</option>
+			<option value="Pretérito Mais-Que-Perfeito do Indicativo">Pretérito Mais-Que-Perfeito do Indicativo</option>
+			<option value="Futuro do Indicativo">Futuro do Indicativo</option>
+			<option value="Presente do Conjuntivo">Presente do Conjuntivo</option>
+			<option value="Pretérito Imperfeito do Conjuntivo">Pretérito Imperfeito do Conjuntivo</option>
+			<option value="Futuro do Conjuntivo">Futuro do Conjuntivo</option>
+			<option value="Infinitivo Pessoal">Infinitivo Pessoal</option>
+			<option value="Condicional">Condicional</option>
+			<option value="Imperativo Afirmativo">Imperativo Afirmativo</option>
+			<option value="Imperativo Negativo">Imperativo Negativo</option>
 
           </select>
         </div>

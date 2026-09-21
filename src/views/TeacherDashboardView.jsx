@@ -209,7 +209,7 @@
 
           {/* 4. SEPARADOR: VERBOS */}
           {dashboardTab === "verbos" && (
-            <ActualVerbsTab />
+            <ActualVerbsTab {...props} />
           )}
 
           {/* 4.1. SEPARADOR: CATÁLOGO & CONJUGAÇÕES */}
