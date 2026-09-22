@@ -59,7 +59,16 @@
       }
 
       // 3.º ao 6.º ANO (PLNM)
-      const moduleExercises = plnnExercises.filter(ex => ex.module_id === activeModuleId);
+      // A tabela plnn_exercises identifica o módulo pelo campo module_type
+      // (texto), não por um module_id numérico — por isso mapeamos o id do
+      // módulo ativo para o tipo correspondente antes de filtrar.
+      const MODULE_TYPE_BY_ID = {
+        1: 'concordance',
+        2: 'sentence_order',
+        3: 'text_reading'
+      };
+      const activeModuleType = MODULE_TYPE_BY_ID[activeModuleId];
+      const moduleExercises = plnnExercises.filter(ex => ex.module_type === activeModuleType);
 
       if (activeModuleId === 1 && typeof Grade3Module1 !== 'undefined') {
         return <Grade3Module1 exercises={moduleExercises} onComplete={() => handleModuleComplete && handleModuleComplete(1)} />;

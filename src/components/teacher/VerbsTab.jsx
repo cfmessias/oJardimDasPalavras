@@ -206,7 +206,7 @@ function VerbsTab(props) {
           onClick={() => { resetForm(); setShowCatalogModal(true); }}
           style={{ padding: '10px 15px', background: '#007bff', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', whiteSpace: 'nowrap' }}
         >
-          + Criar Novo Verbo
+          + Registar Verbo
         </button>
       </div>
 
