@@ -480,7 +480,7 @@ function App() {
       const { data, error } = await supabase
         .from('plnn_exercises')
         .select('*')
-        .eq('grade', gradeNum')
+        .eq('grade', gradeNum)
         .eq('plnn_level', studentPlnnLevel)
         .order('id');
 
