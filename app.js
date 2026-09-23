@@ -276,12 +276,13 @@ function App() {
   const openPhrasesTab = async () => {
     setDashboardTab("frases");
     const { data, error } = await supabase
-      .from('grammar_parameters')
+      .from('plnn_exercises')
       .select('*')
-      .order('id', { ascending: true });
+      .eq('module_type', 'Frases') // Filtra pela nova designação da aba
+      .order('created_at', { ascending: false });
 
     if (!error && data) {
-      setPhrases(mapGrammarToPhrases(data));
+      setPhrases(data);
     }
   };
 
@@ -315,41 +316,42 @@ function App() {
   const handlePhraseSubmit = async (e) => {
     e.preventDefault();
 
+    // Constrói o objeto content de acordo com a mecânica em JSONB
     const payload = {
       teacher_id: teacher?.id || null,
-      category: phraseCategory,                 // Categoria ("Verbo", "Classe", "Pontuação", etc.)
-      base_word: phraseText.trim(),             // Texto/Frase base na BD
-      target_word: phraseTargetWord.trim(),     // Palavra-alvo
-      feature_type: phraseType,                 // Tipo de exercício
-      grade: Number(selectedGrade),             // Ano escolar
-      plnn_level: selectedPlnnLevel || 'A1'     // Nível PLNM
+      module_type: 'Frases',
+      exercise_type: phraseType || 'sentence_order',
+      category: phraseCategory,
+      grade: Number(selectedGrade),
+      plnn_level: selectedPlnnLevel || 'A1',
+      title: phraseText.substring(0, 50) + "...", // Título do exercício
+      prompt: "Ordena os blocos para formar a frase!",
+      content: {
+        full_sentence: phraseText.trim(),
+        target_word: phraseTargetWord.trim(),
+        scrambled: phraseText.trim().split(" ")
+      }
     };
 
-    if (!payload.base_word) return;
+    if (!payload.content.full_sentence) return;
 
     setSavingPhrase(true);
     try {
       if (editingPhraseId) {
         const { error } = await supabase
-          .from('grammar_parameters')
+          .from('plnn_exercises')
           .update(payload)
           .eq('id', editingPhraseId);
         if (error) throw error;
       } else {
         const { error } = await supabase
-          .from('grammar_parameters')
+          .from('plnn_exercises')
           .insert([payload]);
         if (error) throw error;
       }
 
       clearPhraseForm();
-
-      const { data } = await supabase
-        .from('grammar_parameters')
-        .select('*')
-        .order('id', { ascending: true });
-
-      if (data) setPhrases(mapGrammarToPhrases(data));
+      openPhrasesTab(); // Recarrega a lista
     } catch (err) {
       alert("Erro ao guardar frase: " + err.message);
     } finally {
@@ -360,9 +362,8 @@ function App() {
   const handleDeletePhrase = async (id) => {
     if (!confirm("Remover esta frase?")) return;
 
-    // CORRIGIDO: Apagar na tabela 'grammar_parameters' em vez da antiga 'phrases'
     const { error } = await supabase
-      .from('grammar_parameters')
+      .from('plnn_exercises')
       .delete()
       .eq('id', id);
 
@@ -375,15 +376,18 @@ function App() {
 
   const fetchPhrases = async () => {
     const { data, error } = await supabase
-      .from('grammar_parameters')
+      .from('plnn_exercises')
       .select('*')
-      .order('id', { ascending: true });
+      .eq('module_type', 'Frases')
+      .order('created_at', { ascending: false });
 
     if (!error && data) {
-      setPhrases(mapGrammarToPhrases(data));
+      setPhrases(data);
+    } else if (error) {
+      console.error("Erro ao carregar frases:", error.message);
     }
   };
-  
+
   // ---------- Verbos ----------
   const openVerbsTab = () => {
   setDashboardTab("verbos");
@@ -464,30 +468,38 @@ function App() {
       return;
     }
 
-  setSelectedStudent(validated);
-  const gradeNum = Number(validated.grade);
-  // Lê diretamente o nível gravado na ficha do aluno
-  const studentPlnnLevel = validated.plnn_level || "A1";
+    setSelectedStudent(validated);
+    const gradeNum = Number(validated.grade);
+    const studentPlnnLevel = validated.plnn_level || "A1";
 
-  if (gradeNum <= 2) {
-    const studentWords = await getWordsByGrade(gradeNum, studentPlnnLevel);
-    setWords(studentWords);
-  } else {
-    // Procura na tabela pelo ano e pelo nível atribuído ao aluno
-    const { data } = await supabase
-      .from('plnn_exercises')
-      .select('*')
-      .eq('grade', gradeNum)
-      .eq('plnn_level', studentPlnnLevel)
-      .order('id');
+    if (gradeNum <= 2) {
+      const studentWords = await getWordsByGrade(gradeNum, studentPlnnLevel);
+      setWords(studentWords);
+    } else {
+      // Procura na tabela plnn_exercises pelo ano e pelo nível do aluno
+      const { data, error } = await supabase
+        .from('plnn_exercises')
+        .select('*')
+        .eq('grade', gradeNum')
+        .eq('plnn_level', studentPlnnLevel)
+        .order('id');
 
-    setPlnnExercises(data || []);
-  }
+      if (!error && data) {
+        // Mapeia exercise_type com fallback para module_type caso venha a null
+        const formattedExercises = data.map(ex => ({
+          ...ex,
+          exercise_type: ex.exercise_type || ex.module_type 
+        }));
+        setPlnnExercises(formattedExercises);
+      } else {
+        setPlnnExercises([]);
+      }
+    }
 
-  const studentProgress = await getStudentProgress(validated.id);
-  setProgress(studentProgress);
-  setCurrentView("game");
-};
+    const studentProgress = await getStudentProgress(validated.id);
+    setProgress(studentProgress);
+    setCurrentView("game");
+  };
 
    const handleModuleComplete = (moduleId) => {
     alert(`Módulo ${moduleId} concluído com sucesso! ⭐`);
