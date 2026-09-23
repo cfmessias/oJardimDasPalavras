@@ -25,10 +25,14 @@
     const currentCategory = phraseCategory !== undefined ? phraseCategory : localPhraseCategory;
     const changeCategory = setPhraseCategory || setLocalPhraseCategory;
 
-    // Filtragem de frases
+    // Filtragem de frases robusta (insensível a maiúsculas/minúsculas e tolerante a nulos)
     const filteredPhrases = phrases.filter((p) => {
       const matchGrade = Number(p.grade) === Number(selectedGrade);
-      const matchLevel = (p.plnn_level || p.level || 'A1') === selectedPlnnLevel;
+      
+      const itemLevel = String(p.plnn_level || p.level || 'A1').toUpperCase().trim();
+      const targetLevel = String(selectedPlnnLevel || 'A1').toUpperCase().trim();
+      const matchLevel = itemLevel === targetLevel;
+
       return matchGrade && matchLevel;
     });
 
@@ -43,6 +47,18 @@
     const totalPages = Math.ceil(filteredPhrases.length / ITEMS_PER_PAGE) || 1;
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const paginatedPhrases = filteredPhrases.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+    // Função auxiliar para extrair o texto principal da frase
+    const getPhraseDisplayText = (p) => {
+      if (p.phrase_text) return p.phrase_text;
+      if (p.base_word) return p.base_word;
+      if (p.prompt) return p.prompt;
+      if (p.title) return p.title;
+      if (p.content && Array.isArray(p.content.questions) && p.content.questions[0]?.sentence) {
+        return p.content.questions[0].sentence;
+      }
+      return "Frase sem conteúdo de texto";
+    };
 
     return (
       <React.Fragment>
@@ -75,6 +91,7 @@
                 <option value="Pontuação">Pontuação</option>
                 <option value="Nome">Nome / Substantivo</option>
                 <option value="Adjetivo">Adjetivo</option>
+                <option value="Gramática">Gramática</option>
               </select>
             </div>
 
@@ -126,7 +143,7 @@
             <div className="phrases-list" style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '16px' }}>
               {paginatedPhrases.map((p) => (
                 <div 
-                  key={p.id} 
+                  key={p.id || Math.random()} 
                   className="card" 
                   style={{ 
                     display: 'flex', 
@@ -140,11 +157,11 @@
                 >
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                     <div style={{ fontWeight: 'bold', fontSize: '1rem', color: '#1f2937' }}>
-                      {p.base_word || p.phrase_text}
+                      {getPhraseDisplayText(p)}
                     </div>
                     
                     <div style={{ fontSize: '0.85rem', color: '#6b7280', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                      <span>Categoria: <strong>{p.category || 'Verbo'}</strong></span>
+                      <span>Categoria: <strong>{p.category || p.module_type || 'Verbo'}</strong></span>
                       <span>Tipo: <strong>{p.feature_type || p.type || 'leitura'}</strong></span>
                       {(p.target_word || p.phrase_target_word) && (
                         <span style={{ color: '#059669' }}>

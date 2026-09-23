@@ -50,7 +50,7 @@
       allWords = [],
       startEditWord,
       handleDeleteWord,
-      // Frases (passadas via props se necessário)
+      // Frases
       PhrasesTab,
       // Componentes externos de Verbos
       VerbsTab,
@@ -202,7 +202,7 @@
             <ActualVocabularyTab {...props} />
           )}
 
-          {/* 3. SEPARADOR: FRASES (Modularizado no componente externo PhrasesTab) */}
+          {/* 3. SEPARADOR: FRASES */}
           {dashboardTab === "frases" && (
             <ActualPhrasesTab {...props} />
           )}
