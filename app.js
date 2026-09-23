@@ -263,99 +263,114 @@ function App() {
   };
 
   // ---------- Frases ----------
+// Função auxiliar para padronizar os registos da BD para o estado das frases
+  const mapGrammarToPhrases = (data) => {
+    return (data || []).map((item) => ({
+      ...item,
+      phrase_text: item.base_word,           // Mapeia base_word para phrase_text
+      phrase_target_word: item.target_word, // Mapeia target_word
+      type: item.feature_type               // Mapeia feature_type
+    }));
+  };
+
   const openPhrasesTab = async () => {
     setDashboardTab("frases");
     const { data, error } = await supabase
       .from('grammar_parameters')
       .select('*')
       .order('id', { ascending: true });
-  
+
     if (!error && data) {
-      setPhrases(data);
+      setPhrases(mapGrammarToPhrases(data));
     }
   };
 
   const clearPhraseForm = () => {
-	  setPhraseText('');
-	  setPhraseTargetWord('');
-	  setPhraseType('leitura');
-	  setPhraseCategory('Verbo'); // Reseta a categoria
-	  setEditingPhraseId(null);
-	};
+    setPhraseText('');
+    setPhraseTargetWord('');
+    setPhraseType('leitura');
+    setPhraseCategory('Verbo'); // Reseta a categoria
+    setEditingPhraseId(null);
+  };
 
   const handleEditPhrase = (phrase) => {
-	  setEditingPhraseId(phrase.id);
-	  setPhraseText(phrase.base_word || '');
-	  setPhraseTargetWord(phrase.target_word || '');
-	  setPhraseType(phrase.feature_type || 'leitura');
-	  setPhraseCategory(phrase.category || 'Verbo'); // Preenche a categoria
-	};
+    setEditingPhraseId(phrase.id);
+    setPhraseText(phrase.base_word || phrase.phrase_text || '');
+    setPhraseTargetWord(phrase.target_word || phrase.phrase_target_word || '');
+    setPhraseType(phrase.feature_type || phrase.type || 'leitura');
+    setPhraseCategory(phrase.category || 'Verbo'); // Preenche a categoria
+  };
 
   const startEditPhrase = (phrase) => {
-	  setEditingPhraseId(phrase.id);
-	  // Usa o campo novo com fallback para o antigo, se existir
-	  setPhraseText(phrase.base_word || phrase.phrase_text || '');
-	  setPhraseTargetWord(phrase.target_word || phrase.phrase_target_word || '');
-	  setPhraseType(phrase.feature_type || phrase.type || 'leitura');
-	  setPhraseCategory(phrase.category || 'Verbo');
-	  
-	  if (phrase.grade) setSelectedGrade(phrase.grade);
-	  if (phrase.plnn_level) setSelectedPlnnLevel(phrase.plnn_level);
-	};
+    setEditingPhraseId(phrase.id);
+    setPhraseText(phrase.base_word || phrase.phrase_text || '');
+    setPhraseTargetWord(phrase.target_word || phrase.phrase_target_word || '');
+    setPhraseType(phrase.feature_type || phrase.type || 'leitura');
+    setPhraseCategory(phrase.category || 'Verbo');
+
+    if (phrase.grade) setSelectedGrade(phrase.grade);
+    if (phrase.plnn_level) setSelectedPlnnLevel(phrase.plnn_level);
+  };
 
   const handlePhraseSubmit = async (e) => {
-	e.preventDefault();
-	
-	const payload = {
-		teacher_id: teacher?.id || null,
-		category: phraseCategory,                 // Categoria ("Verbo", "Classe", "Pontuação", etc.)
-		base_word: phraseText.trim(),             // Texto/Frase base
-		target_word: phraseTargetWord.trim(),     // Palavra-alvo / resposta esperada
-		feature_type: phraseType,                 // Tipo de exercício (leitura, lacuna, ordenacao)
-		grade: Number(selectedGrade),             // Ano escolar
-		plnn_level: selectedPlnnLevel || 'A1'     // Nível PLNM
-	};
-	
-	if (!payload.base_word) return;
-	
-	setSavingPhrase(true);
-	try {
-		if (editingPhraseId) {
-		const { error } = await supabase
-			.from('grammar_parameters')
-			.update(payload)
-			.eq('id', editingPhraseId);
-		if (error) throw error;
-		} else {
-		const { error } = await supabase
-			.from('grammar_parameters')
-			.insert([payload]);
-		if (error) throw error;
-		}
-	
-		clearPhraseForm();
-	
-		const { data } = await supabase
-		.from('grammar_parameters')
-		.select('*')
-		.order('id');
-		
-		if (data) setPhrases(data);
-	} catch (err) {
-		alert("Erro ao guardar frase: " + err.message);
-	} finally {
-		setSavingPhrase(false);
-	}
-};
+    e.preventDefault();
+
+    const payload = {
+      teacher_id: teacher?.id || null,
+      category: phraseCategory,                 // Categoria ("Verbo", "Classe", "Pontuação", etc.)
+      base_word: phraseText.trim(),             // Texto/Frase base na BD
+      target_word: phraseTargetWord.trim(),     // Palavra-alvo
+      feature_type: phraseType,                 // Tipo de exercício
+      grade: Number(selectedGrade),             // Ano escolar
+      plnn_level: selectedPlnnLevel || 'A1'     // Nível PLNM
+    };
+
+    if (!payload.base_word) return;
+
+    setSavingPhrase(true);
+    try {
+      if (editingPhraseId) {
+        const { error } = await supabase
+          .from('grammar_parameters')
+          .update(payload)
+          .eq('id', editingPhraseId);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('grammar_parameters')
+          .insert([payload]);
+        if (error) throw error;
+      }
+
+      clearPhraseForm();
+
+      const { data } = await supabase
+        .from('grammar_parameters')
+        .select('*')
+        .order('id', { ascending: true });
+
+      if (data) setPhrases(mapGrammarToPhrases(data));
+    } catch (err) {
+      alert("Erro ao guardar frase: " + err.message);
+    } finally {
+      setSavingPhrase(false);
+    }
+  };
 
   const handleDeletePhrase = async (id) => {
     if (!confirm("Remover esta frase?")) return;
-    const { error } = await supabase.from('phrases').delete().eq('id', id);
+
+    // CORRIGIDO: Apagar na tabela 'grammar_parameters' em vez da antiga 'phrases'
+    const { error } = await supabase
+      .from('grammar_parameters')
+      .delete()
+      .eq('id', id);
+
     if (error) {
       alert("Erro ao remover frase: " + error.message);
       return;
     }
-    setPhrases(prev => prev.filter(p => p.id !== id));
+    setPhrases((prev) => prev.filter((p) => p.id !== id));
   };
 
   const fetchPhrases = async () => {
@@ -363,9 +378,9 @@ function App() {
       .from('grammar_parameters')
       .select('*')
       .order('id', { ascending: true });
-  
+
     if (!error && data) {
-      setPhrases(data);
+      setPhrases(mapGrammarToPhrases(data));
     }
   };
   

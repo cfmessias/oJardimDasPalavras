@@ -4,22 +4,26 @@ window.VerbsService = {
   // 1. Obter verbos parametrizados e filtrar as conjugações pelo tempo verbal correto
   async getVerbsByLevel(grade, plnnLevel) {
     let query = supabase
-      .from('verb_levels')
+      .from('verbs')
       .select(`
         id,
-        grade,
-        plnn_level,
-        tense,
-        verbs (
+        infinitive,
+        is_regular,
+        verb_levels!inner (
           id,
-          infinitive,
-          is_regular,
-          verb_conjugations (*)
-        )
+          grade,
+          plnn_level,
+          tense
+        ),
+        verb_conjugations (*)
       `);
 
-    if (grade) query = query.eq('grade', parseInt(grade));
-    if (plnnLevel) query = query.eq('plnn_level', plnnLevel);
+    if (grade) {
+      query = query.eq('verb_levels.grade', parseInt(grade));
+    }
+    if (plnnLevel) {
+      query = query.eq('verb_levels.plnn_level', plnnLevel);
+    }
 
     const { data, error } = await query;
     if (error) {
@@ -27,45 +31,58 @@ window.VerbsService = {
       return [];
     }
 
-    return (data || []).map(item => {
-      const targetTense = item.tense || 'Presente do Indicativo';
+    // Normalização para comparar tempos verbais sem falhas por espaços ou acentos
+    const normalizeStr = (str) => 
+      (str || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
 
-      // Normalização para comparar tempos verbais sem falhas por espaços ou acentos
-      const normalizeStr = (str) => 
-        (str || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+    // Mapeamento para desconstruir o join e manter o formato exato esperado pela interface
+    const results = [];
 
-      const filteredConjugations = (item.verbs?.verb_conjugations || []).filter(
-        conj => normalizeStr(conj.tense) === normalizeStr(targetTense)
-      );
+    (data || []).forEach(verb => {
+      (verb.verb_levels || []).forEach(vl => {
+        // Filtrar por grade e level caso tenham sido especificados
+        const matchGrade = !grade || Number(vl.grade) === Number(grade);
+        const matchLevel = !plnnLevel || vl.plnn_level === plnnLevel;
 
-      return {
-        association_id: item.id,
-        tense: targetTense,
-        id: item.verbs?.id,
-        infinitive: item.verbs?.infinitive,
-        is_regular: item.verbs?.is_regular,
-        verb_conjugations: filteredConjugations
-      };
+        if (matchGrade && matchLevel) {
+          const targetTense = vl.tense || 'Presente do Indicativo';
+
+          const filteredConjugations = (verb.verb_conjugations || []).filter(
+            conj => normalizeStr(conj.tense) === normalizeStr(targetTense)
+          );
+
+          results.push({
+            association_id: vl.id,
+            tense: targetTense,
+            id: verb.id,
+            infinitive: verb.infinitive,
+            is_regular: verb.is_regular,
+            verb_conjugations: filteredConjugations
+          });
+        }
+      });
     });
+
+    return results;
   },
 
   // 2. Pesquisar verbos no catálogo com as respetivas conjugações
   async searchCatalogVerbs(searchTerm) {
     if (!searchTerm || searchTerm.trim().length < 2) return [];
 
-   const { data, error } = await supabase
-	.from('verbs')
-	.select(`
-		id, 
-		infinitive, 
-		is_regular,
-		gerund,
-		past_participle,
-		impersonal_infinitive,
-		verb_conjugations (*)
-	`)
-	.ilike('infinitive', `${searchTerm.trim()}%`)
-	.limit(10);
+    const { data, error } = await supabase
+      .from('verbs')
+      .select(`
+        id, 
+        infinitive, 
+        is_regular,
+        gerund,
+        past_participle,
+        impersonal_infinitive,
+        verb_conjugations (*)
+      `)
+      .ilike('infinitive', `${searchTerm.trim()}%`)
+      .limit(10);
 	
     if (error) {
       console.error('Erro ao pesquisar catálogo:', error);
