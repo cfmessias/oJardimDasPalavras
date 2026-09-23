@@ -317,6 +317,15 @@ function App() {
     e.preventDefault();
 
     // Constrói o objeto content de acordo com a mecânica em JSONB
+    const wordsInOrder = phraseText.trim().split(" ");
+    // Baralha uma cópia das palavras para o aluno reordenar; correct_order
+    // guarda a ordem original, que é o que Grade3Module2 usa para validar.
+    const shuffledWords = [...wordsInOrder];
+    for (let i = shuffledWords.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffledWords[i], shuffledWords[j]] = [shuffledWords[j], shuffledWords[i]];
+    }
+
     const payload = {
       teacher_id: teacher?.id || null,
       module_type: 'Frases',
@@ -329,7 +338,8 @@ function App() {
       content: {
         full_sentence: phraseText.trim(),
         target_word: phraseTargetWord.trim(),
-        scrambled: phraseText.trim().split(" ")
+        scrambled: shuffledWords,
+        correct_order: wordsInOrder
       }
     };
 
