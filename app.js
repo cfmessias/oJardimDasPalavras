@@ -455,7 +455,7 @@ function App() {
   const studentPlnnLevel = validated.plnn_level || "A1";
 
   if (gradeNum <= 2) {
-    const studentWords = await getWordsByGrade(gradeNum);
+    const studentWords = await getWordsByGrade(gradeNum, studentPlnnLevel);
     setWords(studentWords);
   } else {
     // Procura na tabela pelo ano e pelo nível atribuído ao aluno

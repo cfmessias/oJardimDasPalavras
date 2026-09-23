@@ -183,11 +183,17 @@ async function deleteWord(id) {
 }
 
 // 3. PALAVRAS E PROGRESSO
-async function getWordsByGrade(grade) {
-  const { data, error } = await supabase
-    .from("words")
-    .select("*")
-    .eq("grade", grade);
+async function getWordsByGrade(grade, plnnLevel) {
+  let query = supabase.from("words").select("*").eq("grade", grade);
+
+  // Filtra também pelo Nível PLNM do aluno, tal como acontece do 3.º ano em
+  // diante. Se não for indicado um nível, mantém o comportamento antigo
+  // (devolve todas as palavras do ano) para não partir outras chamadas.
+  if (plnnLevel) {
+    query = query.eq("plnn_level", plnnLevel);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     console.error("Erro ao carregar palavras:", error);
