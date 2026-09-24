@@ -396,8 +396,12 @@ function App() {
   // ---------- Gramática ----------
   const openGrammarTab = async () => {
     setDashboardTab("gramatica");
-    const { data } = await supabase.from('grammar').select('*').order('id');
-    if (data) setGrammarList(data);
+    const { data, error } = await supabase
+      .from('plnn_exercises')
+      .select('*')
+      .eq('module_type', 'Gramática')
+      .order('id');
+    if (!error && data) setGrammarList(data);
   };
 
   const clearGrammarForm = () => {
@@ -419,12 +423,17 @@ function App() {
   const handleGrammarSubmit = async (e) => {
     e.preventDefault();
     const payload = {
+      module_type: 'Gramática',
       category: grammarCategory,
-      base_word: grammarBaseWord.trim(),
-      target_word: grammarTargetWord.trim(),
-      feature_type: grammarFeatureType.trim(),
+      title: grammarBaseWord.trim() + ' → ' + grammarTargetWord.trim(), // Se 'title' for obrigatório na tabela
+      prompt: grammarFeatureType.trim() || 'Regra gramatical', // Se 'prompt' for obrigatório
+      content: {
+        base_word: grammarBaseWord.trim(),
+        target_word: grammarTargetWord.trim(),
+        feature_type: grammarFeatureType.trim()
+      },
       grade: Number(selectedGrade),
-      plnn_level: selectedPlnnLevel || 'A1',
+      plnn_level: selectedPlnnLevel || 'A1'
     };
     if (!payload.base_word || !payload.target_word) return;
 
