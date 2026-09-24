@@ -474,18 +474,18 @@ function App() {
   };
 
   const mapGrammarExercise = (item) => {
-  // Se o conteúdo estiver guardado no JSONB 'content'
     const contentObj = typeof item.content === 'string' 
       ? JSON.parse(item.content || '{}') 
       : (item.content || {});
 
     return {
       ...item,
-      // Garante que as propriedades principais existem independentemente de onde são guardadas
-      category: item.category || contentObj.category || 'Geral',
-      base_word: item.base_word || contentObj.base_word || item.title || '',
-      target_word: item.target_word || contentObj.target_word || '',
-      feature_type: item.feature_type || contentObj.feature_type || item.prompt || ''
+      category: item.category || 'Gramática',
+      exerciseTitle: item.title || '',                     // Ex: "Concordância de Adjetivos"
+      instruction: item.prompt || 'Escolhe a opção correta!', // Ex: "Escolhe a palavra correta!"
+      sentenceTemplate: contentObj.sentence_template || '', // Ex: "A pintora ___ expôs os seus quadros."
+      correctOption: contentObj.correct_option || '',       // Ex: "talentosa"
+      options: contentObj.options || []                     // Ex: ["talentoso", "talentosa", "talentosas"]
     };
   };
 
