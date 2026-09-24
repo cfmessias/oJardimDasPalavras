@@ -427,21 +427,23 @@ function App() {
   const handleGrammarSubmit = async (e) => {
     e.preventDefault();
     
+    // Transformamos as opções introduzidas num array JSON
+    const optionsArray = grammarOptions.split(',').map(opt => opt.trim()).filter(Boolean);
+
     const payload = {
       module_type: 'Gramática',
-      category: grammarCategory,
-      title: `${grammarBaseWord.trim()} → ${grammarTargetWord.trim()}`,
-      prompt: grammarFeatureType.trim() || 'Regra gramatical',
+      category: grammarCategory, // ex: Género, Verbos, etc.
+      title: grammarTitle.trim(), // ex: Concordância de Adjetivos
+      prompt: grammarPrompt.trim(), // ex: Escolhe a palavra correta!
+      exercise_type: 'concordance',
       content: {
-        base_word: grammarBaseWord.trim(),
-        target_word: grammarTargetWord.trim(),
-        feature_type: grammarFeatureType.trim()
+        sentence_template: grammarTemplate.trim(), // ex: A pintora ___ expôs os seus quadros.
+        options: optionsArray, // ex: ["talentoso", "talentosa", "talentosas"]
+        correct_option: grammarCorrectOption.trim() // ex: talentosa
       },
       grade: Number(selectedGrade),
       plnn_level: selectedPlnnLevel || 'A1'
     };
-
-    if (!payload.content.base_word || !payload.content.target_word) return;
 
     setSavingGrammar(true);
     try {
@@ -453,9 +455,9 @@ function App() {
         if (error) throw error;
       }
       clearGrammarForm();
-      await openGrammarTab(); // Recarrega a lista atualizada
+      await openGrammarTab();
     } catch (err) {
-      alert("Erro ao guardar regra gramatical: " + err.message);
+      alert("Erro ao guardar: " + err.message);
     } finally {
       setSavingGrammar(false);
     }
