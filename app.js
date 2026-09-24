@@ -400,8 +400,12 @@ function App() {
       .from('plnn_exercises')
       .select('*')
       .eq('module_type', 'Gramática')
-      .order('id');
-    if (!error && data) setGrammarList(data);
+      .order('created_at', { ascending: false }); // Ou por id/created_at
+
+    if (!error && data) {
+      const formattedGrammar = data.map(mapGrammarExercise);
+      setGrammarList(formattedGrammar);
+    }
   };
 
   const clearGrammarForm = () => {
@@ -422,11 +426,12 @@ function App() {
 
   const handleGrammarSubmit = async (e) => {
     e.preventDefault();
+    
     const payload = {
       module_type: 'Gramática',
       category: grammarCategory,
-      title: grammarBaseWord.trim() + ' → ' + grammarTargetWord.trim(), // Se 'title' for obrigatório na tabela
-      prompt: grammarFeatureType.trim() || 'Regra gramatical', // Se 'prompt' for obrigatório
+      title: `${grammarBaseWord.trim()} → ${grammarTargetWord.trim()}`,
+      prompt: grammarFeatureType.trim() || 'Regra gramatical',
       content: {
         base_word: grammarBaseWord.trim(),
         target_word: grammarTargetWord.trim(),
@@ -435,20 +440,20 @@ function App() {
       grade: Number(selectedGrade),
       plnn_level: selectedPlnnLevel || 'A1'
     };
-    if (!payload.base_word || !payload.target_word) return;
+
+    if (!payload.content.base_word || !payload.content.target_word) return;
 
     setSavingGrammar(true);
     try {
       if (editingGrammarId) {
-        const { error } = await supabase.from('grammar').update(payload).eq('id', editingGrammarId);
+        const { error } = await supabase.from('plnn_exercises').update(payload).eq('id', editingGrammarId);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from('grammar').insert([payload]);
+        const { error } = await supabase.from('plnn_exercises').insert([payload]);
         if (error) throw error;
       }
       clearGrammarForm();
-      const { data } = await supabase.from('grammar').select('*').order('id');
-      if (data) setGrammarList(data);
+      await openGrammarTab(); // Recarrega a lista atualizada
     } catch (err) {
       alert("Erro ao guardar regra gramatical: " + err.message);
     } finally {
@@ -464,6 +469,22 @@ function App() {
       return;
     }
     setGrammarList(prev => prev.filter(g => g.id !== id));
+  };
+
+  const mapGrammarExercise = (item) => {
+  // Se o conteúdo estiver guardado no JSONB 'content'
+    const contentObj = typeof item.content === 'string' 
+      ? JSON.parse(item.content || '{}') 
+      : (item.content || {});
+
+    return {
+      ...item,
+      // Garante que as propriedades principais existem independentemente de onde são guardadas
+      category: item.category || contentObj.category || 'Geral',
+      base_word: item.base_word || contentObj.base_word || item.title || '',
+      target_word: item.target_word || contentObj.target_word || '',
+      feature_type: item.feature_type || contentObj.feature_type || item.prompt || ''
+    };
   };
 
   // SUBSTITUIR a função handleSelectStudent por esta:
