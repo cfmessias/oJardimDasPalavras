@@ -6,6 +6,54 @@ const SUPABASE_KEY =
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// --- ACESSO CUMULATIVO A ANOS/NÍVEIS ---------------------------------------
+// O aluno vê sempre o conteúdo exato do seu Ano/Nível, mais (em menor
+// quantidade, como revisão) conteúdo de Anos/Níveis anteriores. A ordem dos
+// níveis (A1 < A2 < B1...) vem da tabela `niveis`, não fica fixa no código.
+
+let _niveisOrdenadosCache = null;
+
+async function getNiveisOrdenados() {
+  if (_niveisOrdenadosCache) return _niveisOrdenadosCache;
+  const { data, error } = await supabase
+    .from("niveis")
+    .select("nivel_val")
+    .order("nivel_id");
+  if (error || !data || data.length === 0) {
+    console.error("Erro ao carregar níveis, a usar ordem por omissão:", error);
+    return ["A1", "A2", "B1", "B2", "C1", "C2"];
+  }
+  _niveisOrdenadosCache = data.map((n) => n.nivel_val);
+  return _niveisOrdenadosCache;
+}
+
+// Devolve a lista de níveis "iguais ou anteriores" a plnnLevel, ex: "B1" -> ["A1","A2","B1"]
+async function getAllowedLevels(plnnLevel) {
+  const ordenados = await getNiveisOrdenados();
+  const idx = ordenados.indexOf(plnnLevel);
+  if (idx === -1) return [plnnLevel]; // nível desconhecido: não arrisca alargar
+  return ordenados.slice(0, idx + 1);
+}
+
+function shuffleArray(arr) {
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+// Junta o conteúdo exato do Ano/Nível ("primary") com uma amostra limitada de
+// revisão de Anos/Níveis anteriores ("review"), para que a revisão nunca
+// domine sobre o conteúdo atual do aluno.
+function combineWithReview(primary, review, reviewRatio = 0.4) {
+  const cap = Math.max(0, Math.ceil(primary.length * reviewRatio));
+  const reviewSample = shuffleArray(review).slice(0, cap);
+  return shuffleArray([...primary, ...reviewSample]);
+}
+// ---------------------------------------------------------------------------
+
 // 1. AUTENTICAÇÃO DO PROFESSOR (email + PIN, sem Supabase Auth)
 async function registerTeacher(email, pin, name, school) {
   const { data, error } = await supabase
@@ -184,22 +232,32 @@ async function deleteWord(id) {
 
 // 3. PALAVRAS E PROGRESSO
 async function getWordsByGrade(grade, plnnLevel) {
-  let query = supabase.from("words").select("*").eq("grade", grade);
-
-  // Filtra também pelo Nível PLNM do aluno, tal como acontece do 3.º ano em
-  // diante. Se não for indicado um nível, mantém o comportamento antigo
-  // (devolve todas as palavras do ano) para não partir outras chamadas.
-  if (plnnLevel) {
-    query = query.eq("plnn_level", plnnLevel);
+  if (!plnnLevel) {
+    // Compatibilidade: sem nível indicado, mantém o comportamento antigo.
+    const { data, error } = await supabase.from("words").select("*").eq("grade", grade);
+    if (error) {
+      console.error("Erro ao carregar palavras:", error);
+      return [];
+    }
+    return data || [];
   }
 
-  const { data, error } = await query;
+  const allowedLevels = await getAllowedLevels(plnnLevel);
+  const { data, error } = await supabase
+    .from("words")
+    .select("*")
+    .lte("grade", grade)
+    .in("plnn_level", allowedLevels);
 
   if (error) {
     console.error("Erro ao carregar palavras:", error);
     return [];
   }
-  return data;
+
+  const all = data || [];
+  const primary = all.filter((w) => Number(w.grade) === Number(grade) && w.plnn_level === plnnLevel);
+  const review = all.filter((w) => !(Number(w.grade) === Number(grade) && w.plnn_level === plnnLevel));
+  return combineWithReview(primary, review);
 }
 
 async function getStudentProgress(studentId) {

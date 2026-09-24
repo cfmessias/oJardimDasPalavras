@@ -66,6 +66,88 @@ window.VerbsService = {
     return results;
   },
 
+  // 1b. Como getVerbsByLevel, mas cumulativa: inclui também (em menor
+  // quantidade, como revisão) verbos de Anos/Níveis anteriores. Usada pelo
+  // VerbExerciseView (aluno); o VerbsTab do professor continua a usar
+  // getVerbsByLevel (exata) para gerir associações.
+  async getVerbsByLevelCumulative(grade, plnnLevel) {
+    const gradeNum = grade ? Number(grade) : null;
+    const allowedLevels = plnnLevel ? await getAllowedLevels(plnnLevel) : null;
+
+    let query = supabase
+      .from('verbs')
+      .select(`
+        id,
+        infinitive,
+        is_regular,
+        verb_levels!inner (
+          id,
+          grade,
+          plnn_level,
+          tense
+        ),
+        verb_conjugations (*)
+      `);
+
+    if (gradeNum) {
+      query = query.lte('verb_levels.grade', gradeNum);
+    }
+    if (allowedLevels) {
+      query = query.in('verb_levels.plnn_level', allowedLevels);
+    }
+
+    const { data, error } = await query;
+    if (error) {
+      console.error('Erro ao obter verbos parametrizados (cumulativo):', error);
+      return [];
+    }
+
+    const normalizeStr = (str) =>
+      (str || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+
+    const primary = [];
+    const review = [];
+
+    (data || []).forEach(verb => {
+      (verb.verb_levels || []).forEach(vl => {
+        const matchGrade = !gradeNum || Number(vl.grade) <= gradeNum;
+        const matchLevel = !allowedLevels || allowedLevels.includes(vl.plnn_level);
+        if (!matchGrade || !matchLevel) return;
+
+        const targetTense = vl.tense || 'Presente do Indicativo';
+        const filteredConjugations = (verb.verb_conjugations || []).filter(
+          conj => normalizeStr(conj.tense) === normalizeStr(targetTense)
+        );
+
+        const item = {
+          association_id: vl.id,
+          tense: targetTense,
+          id: verb.id,
+          infinitive: verb.infinitive,
+          is_regular: verb.is_regular,
+          verb_conjugations: filteredConjugations
+        };
+
+        const isExact = Number(vl.grade) === gradeNum && vl.plnn_level === plnnLevel;
+        (isExact ? primary : review).push(item);
+      });
+    });
+
+    // Junta tudo com a revisão limitada (não deve dominar sobre o Ano/Nível atual)
+    const cap = Math.max(0, Math.ceil(primary.length * 0.4));
+    const shuffled = [...review];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    const combined = [...primary, ...shuffled.slice(0, cap)];
+    for (let i = combined.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [combined[i], combined[j]] = [combined[j], combined[i]];
+    }
+    return combined;
+  },
+
   // 2. Pesquisar verbos no catálogo com as respetivas conjugações
   async searchCatalogVerbs(searchTerm) {
     if (!searchTerm || searchTerm.trim().length < 2) return [];

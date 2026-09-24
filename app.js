@@ -317,15 +317,6 @@ function App() {
     e.preventDefault();
 
     // Constrói o objeto content de acordo com a mecânica em JSONB
-    const wordsInOrder = phraseText.trim().split(" ");
-    // Baralha uma cópia das palavras para o aluno reordenar; correct_order
-    // guarda a ordem original, que é o que Grade3Module2 usa para validar.
-    const shuffledWords = [...wordsInOrder];
-    for (let i = shuffledWords.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffledWords[i], shuffledWords[j]] = [shuffledWords[j], shuffledWords[i]];
-    }
-
     const payload = {
       teacher_id: teacher?.id || null,
       module_type: 'Frases',
@@ -338,8 +329,7 @@ function App() {
       content: {
         full_sentence: phraseText.trim(),
         target_word: phraseTargetWord.trim(),
-        scrambled: shuffledWords,
-        correct_order: wordsInOrder
+        scrambled: phraseText.trim().split(" ")
       }
     };
 
@@ -486,19 +476,32 @@ function App() {
       const studentWords = await getWordsByGrade(gradeNum, studentPlnnLevel);
       setWords(studentWords);
     } else {
-      // Procura na tabela plnn_exercises pelo ano e pelo nível do aluno
+      // Procura exercícios do Ano/Nível do aluno, mais (em menor
+      // quantidade, como revisão) de Anos/Níveis anteriores.
+      const allowedLevels = await getAllowedLevels(studentPlnnLevel);
       const { data, error } = await supabase
         .from('plnn_exercises')
         .select('*')
-        .eq('grade', gradeNum)
-        .eq('plnn_level', studentPlnnLevel)
+        .lte('grade', gradeNum)
+        .in('plnn_level', allowedLevels)
         .order('id');
 
       if (!error && data) {
+        const isExact = (ex) => Number(ex.grade) === gradeNum && ex.plnn_level === studentPlnnLevel;
+        const moduleTypes = [...new Set(data.map(ex => ex.module_type))];
+
+        let combined = [];
+        moduleTypes.forEach(mt => {
+          const subset = data.filter(ex => ex.module_type === mt);
+          const primary = subset.filter(isExact);
+          const review = subset.filter(ex => !isExact(ex));
+          combined = combined.concat(combineWithReview(primary, review));
+        });
+
         // Mapeia exercise_type com fallback para module_type caso venha a null
-        const formattedExercises = data.map(ex => ({
+        const formattedExercises = combined.map(ex => ({
           ...ex,
-          exercise_type: ex.exercise_type || ex.module_type 
+          exercise_type: ex.exercise_type || ex.module_type
         }));
         setPlnnExercises(formattedExercises);
       } else {

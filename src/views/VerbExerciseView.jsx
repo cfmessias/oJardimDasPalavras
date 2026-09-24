@@ -116,7 +116,7 @@
         setScore(0);
 
         try {
-          const associations = await window.VerbsService.getVerbsByLevel(grade, level);
+          const associations = await window.VerbsService.getVerbsByLevelCumulative(grade, level);
           if (cancelled) return;
           setQuestions(buildQuestions(associations));
         } catch (err) {
