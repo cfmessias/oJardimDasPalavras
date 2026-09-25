@@ -732,7 +732,9 @@ function Grade3Module2({ exercises, onComplete }) {
     ? JSON.parse(currentEx.content) 
     : currentEx?.content;
 
-  const [availableWords, setAvailableWords] = React.useState(content?.scrambled || []);
+  // Compatibilidade: exercícios antigos podem não ter correct_order.
+  const correctOrder = content?.correct_order || (content?.full_sentence || '').trim().split(/\s+/).filter(Boolean);
+  const [availableWords, setAvailableWords] = React.useState(content?.scrambled || correctOrder);
   const [builtSentence, setBuiltSentence] = React.useState([]);
   const [picoState, setPicoState] = React.useState({
     message: currentEx?.prompt || "Clica nas palavras pela ordem correta!",
@@ -750,7 +752,7 @@ function Grade3Module2({ exercises, onComplete }) {
   };
 
   const handleVerify = () => {
-    const isCorrect = JSON.stringify(builtSentence) === JSON.stringify(content.correct_order);
+    const isCorrect = JSON.stringify(builtSentence) === JSON.stringify(correctOrder);
 
     if (isCorrect) {
       const successMsg = "Fantástico! A frase está perfeitamente ordenada!";
@@ -762,7 +764,8 @@ function Grade3Module2({ exercises, onComplete }) {
           const nextEx = exercises[currentIndex + 1];
           const nextContent = typeof nextEx.content === 'string' ? JSON.parse(nextEx.content) : nextEx.content;
           setCurrentIndex(prev => prev + 1);
-          setAvailableWords(nextContent.scrambled);
+          const nextCorrectOrder = nextContent?.correct_order || (nextContent?.full_sentence || '').trim().split(/\s+/).filter(Boolean);
+          setAvailableWords(nextContent?.scrambled || nextCorrectOrder);
           setBuiltSentence([]);
           setPicoState({ message: nextEx.prompt || "Organiza a próxima frase!", isSuccess: false });
         } else {

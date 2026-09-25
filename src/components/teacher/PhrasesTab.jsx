@@ -44,25 +44,70 @@
       setCurrentPage(1);
     }, [selectedGrade, selectedPlnnLevel]);
 
+    // Ao clicar em "Editar", leva o professor imediatamente para o formulário.
+    useEffect(() => {
+      if (editingPhraseId) {
+        document.getElementById('phrase-editor')?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    }, [editingPhraseId]);
+
     const totalPages = Math.ceil(filteredPhrases.length / ITEMS_PER_PAGE) || 1;
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const paginatedPhrases = filteredPhrases.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-    // Função auxiliar para extrair o texto principal da frase
+    // As frases novas guardam a frase real em content.full_sentence.
+    // Mantemos fallbacks para compatibilidade com registos antigos.
+    const getPhraseContent = (p) => {
+      return p?.content && typeof p.content === 'object' ? p.content : {};
+    };
+
     const getPhraseDisplayText = (p) => {
+      const content = getPhraseContent(p);
+      if (content.full_sentence) return content.full_sentence;
       if (p.phrase_text) return p.phrase_text;
       if (p.base_word) return p.base_word;
+      if (content.sentence) return content.sentence;
+      if (Array.isArray(content.questions) && content.questions[0]?.sentence) {
+        return content.questions[0].sentence;
+      }
       if (p.prompt) return p.prompt;
       if (p.title) return p.title;
-      if (p.content && Array.isArray(p.content.questions) && p.content.questions[0]?.sentence) {
-        return p.content.questions[0].sentence;
-      }
       return "Frase sem conteúdo de texto";
     };
 
+    const getPhraseTargetWord = (p) => {
+      const content = getPhraseContent(p);
+      return content.target_word || p.target_word || p.phrase_target_word || '';
+    };
+
+    const getPhraseType = (p) => {
+      const type = p.exercise_type || p.feature_type || p.type || 'leitura';
+      const normalizedType = type === 'sentence_order' ? 'ordenacao' : type;
+      return {
+        leitura: 'Leitura / Compreensão',
+        lacuna: 'Preenchimento de Lacuna',
+        ordenacao: 'Ordenação de Frase'
+      }[normalizedType] || normalizedType;
+    };
+
+    const categoryOptions = [
+      'Verbo',
+      'Classe',
+      'Pontuação',
+      'Nome',
+      'Adjetivo',
+      'Gramática',
+      'Construção Frásica'
+    ];
+
     return (
       <React.Fragment>
-        <h3>{editingPhraseId ? "Editar Frase" : `Adicionar Frase para ${selectedGrade}.º Ano (${selectedPlnnLevel || 'A1'})`}</h3>
+        <div id="phrase-editor" style={{ scrollMarginTop: '16px' }}>
+          <h3>{editingPhraseId ? "Editar Frase" : `Adicionar Frase para ${selectedGrade}.º Ano (${selectedPlnnLevel || 'A1'})`}</h3>
+        </div>
 
         <form onSubmit={handlePhraseSubmit} autoComplete="off" style={{ display: 'grid', gap: '12px', marginTop: '12px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
@@ -86,12 +131,16 @@
                 onChange={(e) => changeCategory(e.target.value)}
                 required
               >
+                {currentCategory && !categoryOptions.includes(currentCategory) && (
+                  <option value={currentCategory}>{currentCategory}</option>
+                )}
                 <option value="Verbo">Verbo</option>
                 <option value="Classe">Classe</option>
                 <option value="Pontuação">Pontuação</option>
                 <option value="Nome">Nome / Substantivo</option>
                 <option value="Adjetivo">Adjetivo</option>
                 <option value="Gramática">Gramática</option>
+                <option value="Construção Frásica">Construção Frásica</option>
               </select>
             </div>
 
@@ -143,7 +192,7 @@
             <div className="phrases-list" style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '16px' }}>
               {paginatedPhrases.map((p) => (
                 <div 
-                  key={p.id || Math.random()} 
+                  key={p.id} 
                   className="card" 
                   style={{ 
                     display: 'flex', 
@@ -162,10 +211,10 @@
                     
                     <div style={{ fontSize: '0.85rem', color: '#6b7280', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                       <span>Categoria: <strong>{p.category || p.module_type || 'Verbo'}</strong></span>
-                      <span>Tipo: <strong>{p.feature_type || p.type || 'leitura'}</strong></span>
-                      {(p.target_word || p.phrase_target_word) && (
+                      <span>Tipo: <strong>{getPhraseType(p)}</strong></span>
+                      {getPhraseTargetWord(p) && (
                         <span style={{ color: '#059669' }}>
-                          Palavra-alvo: <strong>{p.target_word || p.phrase_target_word}</strong>
+                          Palavra-alvo: <strong>{getPhraseTargetWord(p)}</strong>
                         </span>
                       )}
                     </div>

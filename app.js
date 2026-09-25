@@ -294,20 +294,39 @@ function App() {
     setEditingPhraseId(null);
   };
 
+  // Normaliza uma frase da BD para o formato usado pelo formulário.
+  // As frases novas guardam o texto e a palavra-alvo dentro de content (JSONB),
+  // enquanto registos antigos podem ainda ter esses valores em colunas próprias.
+  const getPhraseFormValues = (phrase) => {
+    const content = phrase?.content && typeof phrase.content === 'object' ? phrase.content : {};
+
+    const exerciseType = phrase?.exercise_type || phrase?.feature_type || phrase?.type || 'leitura';
+    const normalizedType = exerciseType === 'sentence_order' ? 'ordenacao' : exerciseType;
+
+    return {
+      text: content.full_sentence || phrase.phrase_text || phrase.base_word || phrase.prompt || '',
+      targetWord: content.target_word || phrase.target_word || phrase.phrase_target_word || '',
+      type: normalizedType,
+      category: phrase.category || phrase.module_category || 'Verbo'
+    };
+  };
+
   const handleEditPhrase = (phrase) => {
+    const values = getPhraseFormValues(phrase);
     setEditingPhraseId(phrase.id);
-    setPhraseText(phrase.base_word || phrase.phrase_text || '');
-    setPhraseTargetWord(phrase.target_word || phrase.phrase_target_word || '');
-    setPhraseType(phrase.feature_type || phrase.type || 'leitura');
-    setPhraseCategory(phrase.category || 'Verbo'); // Preenche a categoria
+    setPhraseText(values.text);
+    setPhraseTargetWord(values.targetWord);
+    setPhraseType(values.type);
+    setPhraseCategory(values.category);
   };
 
   const startEditPhrase = (phrase) => {
+    const values = getPhraseFormValues(phrase);
     setEditingPhraseId(phrase.id);
-    setPhraseText(phrase.base_word || phrase.phrase_text || '');
-    setPhraseTargetWord(phrase.target_word || phrase.phrase_target_word || '');
-    setPhraseType(phrase.feature_type || phrase.type || 'leitura');
-    setPhraseCategory(phrase.category || 'Verbo');
+    setPhraseText(values.text);
+    setPhraseTargetWord(values.targetWord);
+    setPhraseType(values.type);
+    setPhraseCategory(values.category);
 
     if (phrase.grade) setSelectedGrade(phrase.grade);
     if (phrase.plnn_level) setSelectedPlnnLevel(phrase.plnn_level);
@@ -325,11 +344,19 @@ function App() {
       grade: Number(selectedGrade),
       plnn_level: selectedPlnnLevel || 'A1',
       title: phraseText.substring(0, 50) + "...", // Título do exercício
-      prompt: "Ordena os blocos para formar a frase!",
+      prompt: phraseType === 'ordenacao'
+        ? 'Ordena os blocos para formar a frase!'
+        : phraseType === 'lacuna'
+          ? 'Completa a frase com a palavra adequada!'
+          : 'Lê a frase e responde às questões!',
+      // Para exercícios de ordenação, guardamos separadamente a ordem correta
+      // e as palavras apresentadas ao aluno. Isto é importante porque o módulo
+      // do aluno valida a resposta contra content.correct_order.
       content: {
         full_sentence: phraseText.trim(),
         target_word: phraseTargetWord.trim(),
-        scrambled: phraseText.trim().split(" ")
+        correct_order: phraseText.trim().split(/\s+/),
+        scrambled: phraseText.trim().split(/\s+/)
       }
     };
 
