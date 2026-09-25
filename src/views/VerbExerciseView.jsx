@@ -99,9 +99,8 @@
     const [loading, setLoading] = React.useState(true);
     const [error, setError] = React.useState(null);
     const [questions, setQuestions] = React.useState([]);
-    const [currentQuestion, setCurrentQuestion] = React.useState(0);
-    const [selectedOption, setSelectedOption] = React.useState(null);
-    const [isCorrect, setIsCorrect] = React.useState(null);
+    const [batchStart, setBatchStart] = React.useState(0);
+    const [answers, setAnswers] = React.useState({});
     const [score, setScore] = React.useState(0);
 
     React.useEffect(() => {
@@ -110,9 +109,8 @@
       async function load() {
         setLoading(true);
         setError(null);
-        setCurrentQuestion(0);
-        setSelectedOption(null);
-        setIsCorrect(null);
+        setBatchStart(0);
+        setAnswers({});
         setScore(0);
 
         try {
@@ -131,28 +129,33 @@
       return () => { cancelled = true; };
     }, [grade, level]);
 
-    const activeQuestion = questions[currentQuestion];
+    // Mostra 3 exercícios em simultâneo. Se houver menos de 3 disponíveis,
+    // apresenta os que existirem.
+    const visibleQuestions = questions.slice(batchStart, batchStart + 3);
+    const answeredCount = visibleQuestions.filter((_, index) => answers[batchStart + index] !== undefined).length;
+    const batchComplete = visibleQuestions.length > 0 && answeredCount === visibleQuestions.length;
 
-    const handleSelectOption = (option) => {
-      if (selectedOption !== null || !activeQuestion) return;
-      setSelectedOption(option);
+    const handleSelectOption = (questionIndex, option) => {
+      if (answers[questionIndex] !== undefined) return;
 
-      if (option === activeQuestion.correct) {
-        setIsCorrect(true);
-        setScore(score + 10);
-      } else {
-        setIsCorrect(false);
+      const question = questions[questionIndex];
+      if (!question) return;
+
+      setAnswers(prev => ({ ...prev, [questionIndex]: option }));
+      if (option === question.correct) {
+        setScore(prev => prev + 10);
       }
     };
 
-    const handleNextQuestion = () => {
-      setSelectedOption(null);
-      setIsCorrect(null);
-      if (currentQuestion + 1 < questions.length) {
-        setCurrentQuestion(currentQuestion + 1);
-      } else {
-        setCurrentQuestion(0);
+    const handleNextBatch = () => {
+      if (questions.length <= 3) {
+        setAnswers({});
+        return;
       }
+
+      const nextStart = batchStart + 3;
+      setBatchStart(nextStart < questions.length ? nextStart : 0);
+      setAnswers({});
     };
 
     const headerLabel = grade <= 2 ? 'Ações e Verbos' : 'Verbos e Expressões';
@@ -197,58 +200,82 @@
           </span>
         </div>
 
-        <div style={{ margin: '24px 0', textAlign: 'center' }}>
-          <h3 style={{ fontSize: '20px', color: '#1f2937', marginBottom: '8px' }}>
-            {activeQuestion.pronoun}{' '}
-            <span style={{ borderBottom: '3px solid #ff6b4a', padding: '0 12px', color: '#ff6b4a', fontWeight: 'bold' }}>
-              {selectedOption || '______'}
-            </span>{' '}
-            ({activeQuestion.infinitive})
-          </h3>
-          <p style={{ fontSize: '13px', color: '#6b7280', fontStyle: 'italic' }}>
-            💡 Dica: {activeQuestion.tense}
-          </p>
-        </div>
-
-        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', margin: '24px 0' }}>
-          {activeQuestion.options.map((option, idx) => {
-            let btnStyle = {
-              padding: '12px 24px',
-              fontSize: '16px',
-              fontWeight: '600',
-              borderRadius: '8px',
-              border: '2px solid #e5e7eb',
-              backgroundColor: '#ffffff',
-              cursor: 'pointer',
-              transition: 'all 0.2s'
-            };
-
-            if (selectedOption === option) {
-              btnStyle.backgroundColor = isCorrect ? '#4ade80' : '#f87171';
-              btnStyle.color = '#ffffff';
-              btnStyle.borderColor = isCorrect ? '#22c55e' : '#ef4444';
-            }
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '14px' }}>
+          {visibleQuestions.map((question, localIndex) => {
+            const questionIndex = batchStart + localIndex;
+            const selectedOption = answers[questionIndex];
+            const answeredCorrectly = selectedOption !== undefined && selectedOption === question.correct;
 
             return (
-              <button
-                key={idx}
-                onClick={() => handleSelectOption(option)}
-                style={btnStyle}
-                disabled={selectedOption !== null}
+              <div
+                key={`${questionIndex}-${question.infinitive}-${question.pronoun}`}
+                style={{
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '12px',
+                  padding: '14px',
+                  backgroundColor: '#fafafa',
+                  minWidth: 0
+                }}
               >
-                {option}
-              </button>
+                <div style={{ textAlign: 'center', marginBottom: '12px' }}>
+                  <h3 style={{ fontSize: '16px', color: '#1f2937', margin: '0 0 6px' }}>
+                    {question.pronoun}{' '}
+                    <span style={{ borderBottom: '2px solid #ff6b4a', padding: '0 6px', color: '#ff6b4a', fontWeight: 'bold' }}>
+                      {selectedOption || '______'}
+                    </span>{' '}
+                    ({question.infinitive})
+                  </h3>
+                  <p style={{ fontSize: '12px', color: '#6b7280', fontStyle: 'italic', margin: 0 }}>
+                    💡 Dica: {question.tense}
+                  </p>
+                </div>
+
+                <div style={{ display: 'flex', gap: '7px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                  {question.options.map((option, idx) => {
+                    const isSelected = selectedOption === option;
+                    const isWrongSelected = isSelected && !answeredCorrectly;
+                    const isCorrectSelected = isSelected && answeredCorrectly;
+
+                    const btnStyle = {
+                      padding: '9px 10px',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      borderRadius: '7px',
+                      border: '2px solid #e5e7eb',
+                      backgroundColor: isCorrectSelected ? '#4ade80' : isWrongSelected ? '#f87171' : '#ffffff',
+                      color: (isCorrectSelected || isWrongSelected) ? '#ffffff' : '#111827',
+                      borderColor: isCorrectSelected ? '#22c55e' : isWrongSelected ? '#ef4444' : '#e5e7eb',
+                      cursor: selectedOption === undefined ? 'pointer' : 'default',
+                      transition: 'all 0.2s'
+                    };
+
+                    return (
+                      <button
+                        key={idx}
+                        onClick={() => handleSelectOption(questionIndex, option)}
+                        style={btnStyle}
+                        disabled={selectedOption !== undefined}
+                      >
+                        {option}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {selectedOption !== undefined && (
+                  <p style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '12px', color: answeredCorrectly ? '#15803d' : '#b91c1c', margin: '10px 0 0' }}>
+                    {answeredCorrectly ? '🎉 Certo!' : `❌ Correta: "${question.correct}"`}
+                  </p>
+                )}
+              </div>
             );
           })}
         </div>
 
-        {selectedOption !== null && (
-          <div style={{ textAlign: 'center', marginTop: '20px' }}>
-            <p style={{ fontWeight: 'bold', color: isCorrect ? '#15803d' : '#b91c1c', marginBottom: '12px' }}>
-              {isCorrect ? '🎉 Muito bem! Resposta certa.' : `❌ Quase! A opção correta era: "${activeQuestion.correct}".`}
-            </p>
+        {batchComplete && (
+          <div style={{ textAlign: 'center', marginTop: '18px' }}>
             <button
-              onClick={handleNextQuestion}
+              onClick={handleNextBatch}
               style={{
                 padding: '10px 20px',
                 backgroundColor: '#ff6b4a',
@@ -259,7 +286,7 @@
                 cursor: 'pointer'
               }}
             >
-              Próximo Exercício ➔
+              Próximos 3 Exercícios ➔
             </button>
           </div>
         )}
