@@ -474,18 +474,18 @@ function App() {
   };
 
   const mapGrammarExercise = (item) => {
+    // Garante que o campo content é lido corretamente (seja string JSON ou objeto)
     const contentObj = typeof item.content === 'string' 
       ? JSON.parse(item.content || '{}') 
       : (item.content || {});
 
     return {
       ...item,
+      // Mapeamos para os nomes antigos que o cartão já sabe renderizar:
       category: item.category || 'Gramática',
-      exerciseTitle: item.title || '',                     // Ex: "Concordância de Adjetivos"
-      instruction: item.prompt || 'Escolhe a opção correta!', // Ex: "Escolhe a palavra correta!"
-      sentenceTemplate: contentObj.sentence_template || '', // Ex: "A pintora ___ expôs os seus quadros."
-      correctOption: contentObj.correct_option || '',       // Ex: "talentosa"
-      options: contentObj.options || []                     // Ex: ["talentoso", "talentosa", "talentosas"]
+      base_word: item.title || '',                                    // Aparece no topo do cartão (ex: Concordância de Adjetivos)
+      target_word: contentObj.sentence_template || contentObj.correct_option || '', // Aparece a seguir à seta (ex: frase com lacuna)
+      feature_type: item.prompt || ''                                // Aparece em baixo (ex: Escolhe a palavra correta!)
     };
   };
 
